@@ -33,7 +33,7 @@ a{color:#175cd3}li{margin:.55rem 0}section{margin:22px 0}
 .contact-button{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700}
 @media(max-width:650px){.flow-grid{grid-template-columns:1fr}.driver-flow{padding:15px}.quick{overflow-x:auto;padding:12px}.quick table{min-width:480px}}
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Printer Driver Is Unavailable in Windows 11? Fix It Safely","description":"Safe steps for a printer driver unavailable message on Windows 11, including Windows Update, official manufacturer support, and ARM compatibility.","author":{"@type":"Organization","name":"Printer Resolve"},"publisher":{"@type":"Organization","name":"Printer Resolve"},"dateModified":"2026-10-19","mainEntityOfPage":"https://printerresolve.com/printer-driver-unavailable-windows-11"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Printer Driver Is Unavailable in Windows 11? Fix It Safely","description":"Safe steps for a printer driver unavailable message on Windows 11, including Windows Update, official manufacturer support, and ARM compatibility.","author":{"@type":"Organization","name":"Printer Resolve"},"publisher":{"@type":"Organization","name":"Printer Resolve"},"dateModified":"2026-10-27","mainEntityOfPage":"https://printerresolve.com/printer-driver-unavailable-windows-11"}</script>
 </head>
 <body>
 <header><a href="/">Printer Resolve</a></header>
@@ -43,7 +43,7 @@ a{color:#175cd3}li{margin:.55rem 0}section{margin:22px 0}
 <h1>Printer Driver Is Unavailable in Windows 11? How to Fix It Safely</h1><nav aria-label="Article sections" style="margin:20px 0;padding:16px;background:#f1f6fc;border-radius:10px"><strong>Jump to:</strong> <a href="#checks">Troubleshooting steps</a> · <a href="#faq">Frequently asked questions</a></nav>
 <p>If Windows 11 displays <strong>Driver is unavailable</strong> next to a printer, Windows may be missing a suitable driver, using a driver that no longer works, or having trouble completing printer setup. The message does not automatically mean your HP, Canon, Epson or Brother printer is broken.</p>
 <p>Work through the checks below in order. Begin with the steps built into Windows before downloading software or deleting printer entries.</p>
-<p><small>Updated <time datetime="2026-10-19">19 October 2026</time> · Independent troubleshooting guide</small></p>
+<p><small>Updated <time datetime="2026-10-27">27 October 2026</time> · Independent troubleshooting guide</small></p>
 <div class="note warning"><strong>Safety first:</strong> Record your exact printer model and save open work. Avoid “driver updater” ads, registry cleaners, unknown remote-support services and factory resets. If this is an office or school computer, ask your administrator before replacing drivers.</div>
 <figure class="driver-flow" aria-label="Printer driver unavailable three-step diagnostic sequence">
 <figcaption>Start with three low-risk checks</figcaption>
@@ -102,6 +102,17 @@ a{color:#175cd3}li{margin:.55rem 0}section{margin:22px 0}
 <section><h2>8. Remove and re-add the printer only as a later step</h2>
 <p>If updates, the correct driver and troubleshooting have not helped, Microsoft lists reinstalling the printer as a later option. Before doing so, write down any network address, custom preferences, or shared-printer settings you may need to restore.</p>
 <p>Then follow the model-specific and Windows instructions to remove the <em>incorrect or broken</em> printer entry and add it again. On work computers, shared printers or restricted permissions may require IT assistance. Don't delete drivers for every printer on the computer.</p></section>
+<section aria-labelledby="driver-situation-table"><h2 id="driver-situation-table">Which “driver unavailable” situation matches yours?</h2>
+<p>Use the exact Windows error, your computer's processor type and what changed recently to choose a relevant action. These are troubleshooting pathways, not results from physically testing specific printer models.</p>
+<div class="quick"><table><thead><tr><th scope="col">Situation</th><th scope="col">What to check first</th><th scope="col">Avoid</th></tr></thead><tbody>
+<tr><td>New printer on a Windows 11 ARM-based PC</td><td>Check <strong>Settings → System → About → System type</strong>, then try Windows <strong>Add device</strong>. Manufacturer setup programs can fail on some ARM devices. <a href="https://support.microsoft.com/en-us/windows/hardware/printer/download-and-install-the-latest-printer-drivers" rel="noopener noreferrer">Microsoft explains the ARM exception</a>.</td><td>Assuming an x64-only installer is compatible with ARM</td></tr>
+<tr><td>Error appeared after a Windows update</td><td>Record the update date, check Windows Update for a compatible printer driver, and consult official manufacturer support if the exact model still fails.</td><td>Downloading unsolicited “driver fixer” utilities</td></tr>
+<tr><td>Printer disappeared after enabling Windows Protected Print Mode</td><td>Check whether Protected Print Mode was enabled. Microsoft explains that enabling it removes printers using manufacturer drivers; discuss implications with IT before changing this security setting. <a href="https://support.microsoft.com/en-us/windows/modern-print-platform-4f59fa38-3419-41c7-a6a7-8ca4e21f70bc" rel="noopener noreferrer">Read Microsoft's guidance</a>.</td><td>Disabling a security feature without considering its protections</td></tr>
+<tr><td>Only scanning fails, but Windows test printing works</td><td>Check the manufacturer's official scan support; scanning software can be separate from the printer driver.</td><td>Removing a working printer configuration before investigating scanning</td></tr>
+<tr><td>Printer is missing entirely from Windows</td><td>Confirm USB or network connectivity and follow the <a href="printer-not-found-windows-11">printer-not-found checklist</a> before installing more drivers.</td><td>Assuming a driver can fix a disconnected device</td></tr>
+</tbody></table></div>
+<h3>Confirm the outcome</h3><p>After any change, compare three results: (1) Does Windows list the intended printer? (2) Does a Windows test page print? (3) Can you print from the original application? If the first two succeed but the third fails, focus on that application. On office or school computers, ask IT before changing Protected Print Mode or deleting shared printer queues.</p>
+</section>
 <section><h2 id="faq">Frequently asked questions</h2>
 <h3>Why does my HP printer say “Driver is unavailable” in Windows 11?</h3>
 <p>Windows may be using an outdated or incompatible printer driver or may not have completed installation. Check the exact HP model, Windows Update and official HP support first. If it is a Wi-Fi printer that also appears offline, follow our <a href="hp-printer-offline-connected-wifi">HP offline-on-Wi-Fi guide</a>.</p>
