@@ -37,7 +37,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   assert.equal(await desktop.locator("#fit-result").getAttribute("data-outcome"),"does-not-fit");
   await desktop.screenshot({path:path.join(art,"paper-fit-desktop.png"),fullPage:true,animations:"disabled"});
   await desktop.goto(base+"/printer-offline-windows-11",{waitUntil:"domcontentloaded"});
-  assert.ok(await desktop.locator(".pr-evidence").isVisible(),"original diagnostic section");
+  assert.ok(await desktop.locator(".pr-evidence").first().isVisible(),"original diagnostic section");
   await desktop.locator(".pr-notes summary").click();
   await desktop.locator('[data-pr-field="symptom"]').fill("Shows Offline in Windows");
   await desktop.locator("[data-pr-generate]").click();
