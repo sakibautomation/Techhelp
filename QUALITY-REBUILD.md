@@ -61,3 +61,8 @@ These source links are starting points, not substitutes for a model-specific man
 4. Review Search Console for traffic, coverage, duplicate pages and ranking opportunities.
 5. Merge only after QA; keep live URLs stable.
 6. Monitor search and user interaction. Re-request AdSense review only when quality improvements are complete and there are no unresolved platform issues.
+
+## Implementation snapshot — 6 November 2026
+- The 3D homepage, guide library, IPv4 connection lab and paper-fit calculator are implemented on a draft branch.
+- Existing troubleshooting pages retain core guidance, with added topic-specific interpretation paths and local notes. No real device tests or screenshots were fabricated.
+- Visual QA, validation of model-specific instructions and search-performance assessment remain release gates. AdSense approval has not been confirmed.
