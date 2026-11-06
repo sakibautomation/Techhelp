@@ -188,3 +188,11 @@ body.nx-lab .lab-hero h1,body.nx-lab .lab-head h1,body.nx-library .library-hero 
 @media(max-width:900px){.nx-showcase-grid{grid-template-columns:1fr 1fr}.nx-showcase-grid .nx-showcase-card:last-child{grid-column:1/-1}.nx-showcase-header{display:block}.nx-showcase-header>p{max-width:640px;margin-top:20px}.nx-home-showcase{padding:75px 0}}
 @media(max-width:610px){.nx-showcase-grid{grid-template-columns:1fr}.nx-showcase-grid .nx-showcase-card:last-child{grid-column:auto}.nx-showcase-visual{height:225px}.nx-showcase-visual img{width:300px}.nx-showcase-secondary{display:block;padding:10px 20px 23px}.nx-showcase-secondary img{width:125px;height:90px}.nx-showcase-secondary a{display:inline-block;margin-top:6px}.nx-showcase-header h2{font-size:47px}}
 @media(prefers-reduced-motion:reduce){.nx-showcase-visual:before,.nx-showcase-visual:after,.nx-showcase-visual img,.nx-showcase-secondary img{animation:none!important;transition:none!important}}
+
+/* Final navigation and readability polish. */
+body.nx-document .nx-wordmark > span:last-child{font-weight:790;color:#f2f8ff}
+body.nx-document .nx-wordmark > span:last-child > span{font-weight:420;color:#b4c9dc}
+body.nx-document main article,body.nx-document main section{min-width:0}
+body.nx-document main .quick[style*="overflow-x"],body.nx-document main [role="region"][style*="overflow-x"]{scrollbar-color:#5584a9 #172c43}
+body.nx-document main table{overflow-wrap:break-word}
+@media(max-width:580px){body.nx-document .nx-wordmark{font-size:16px!important}body.nx-document .nx-wordmark > span:last-child{white-space:nowrap}body.nx-document main .quick:has(table){overflow-x:auto!important}body.nx-document main .pr-field-grid{min-width:0}body.nx-document main .nx-inline-visual{overflow:hidden}}
