@@ -276,3 +276,22 @@ body.nx-document main :is(.diagnostic-card,.disk-step,.startup-step,.wifi-step,.
    color:#111!important;
  }
 }
+
+
+/* Paper and nozzle illustrations require a bright proofing surface to retain
+   visible ink/toner sample strokes; force dark writing only on these panels. */
+body.nx-document main :is(.pattern-card,.paper-tile,.nozzle-panel){
+  background:#f5f9ff!important;
+  color:#19334e!important;
+  border:1px solid #b3cfe5!important;
+}
+body.nx-document main :is(.pattern-card,.paper-tile,.nozzle-panel) :is(p,small,strong,b,span,li,figcaption,h3,h4,.small,.print-sample,.nozzle-pattern){
+  color:#19334e!important;
+}
+body.nx-document main .pattern-card .print-sample.faint{
+  color:#96abbf!important;
+}
+@media print{
+ body.nx-document main :is(.pattern-card,.paper-tile,.nozzle-panel),
+ body.nx-document main :is(.pattern-card,.paper-tile,.nozzle-panel) :is(p,small,strong,b,span,li,figcaption,.small,.print-sample,.nozzle-pattern){background:#fff!important;color:#111!important}
+}
