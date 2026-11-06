@@ -59,7 +59,22 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   assert.ok(await mobile.locator("#paper-svg").isVisible(),"mobile preview");
   const toolsDims=await mobile.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));
   assert.ok(toolsDims.content<=toolsDims.viewport+3,"mobile tool horizontal overflow: "+JSON.stringify(toolsDims));
+  // Visit every published document at Android width, catching hidden overflow and runtime errors.
+  const allPageFiles=fs.readdirSync(root).filter(p=>p.endsWith(".html")).concat(["tools/connection-path.html","tools/page-fit.html"]);
+  const jsErrors=[];
+  mobile.on("pageerror",err=>jsErrors.push(err.message));
+  const overflow=[];
+  for(const pageFile of allPageFiles){
+    const route="/"+pageFile.replace(/\\.html$/,"");
+    const response=await mobile.goto(base+route,{waitUntil:"domcontentloaded"});
+    assert.equal(response.status(),200,"HTTP 200 for "+route);
+    const data=await mobile.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth,title:document.title,h1:document.querySelector("h1")?.textContent?.trim()}));
+    if(data.content>data.viewport+3)overflow.push({path:pageFile,...data});
+    assert.ok(data.h1&&data.h1.length>5,"readable H1 for "+route);
+  }
+  assert.deepEqual(overflow,[],"Pages with mobile horizontal overflow");
+  assert.deepEqual(jsErrors,[],"Client-side script errors while opening guide library");
   await mobile.close();
-  process.stdout.write("Browser smoke passed: 3D hero, mobile menu, reduced motion, no overflow, diagnostics, page fit, local notes.\n");
+  process.stdout.write("Browser smoke passed: every page opens at mobile width; 3D hero, menu, reduced motion, no overflow, diagnostics, page fit, local notes.\n");
  }finally{await browser.close();await new Promise(ok=>app.close(ok))}
 })().catch(e=>{process.stderr.write(e.stack+"\n");process.exitCode=1});
