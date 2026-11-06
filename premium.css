@@ -128,3 +128,29 @@ main .pr-result-cards p{margin:9px 0 0!important;font-size:14px!important;line-h
 main .pr-evidence .pr-evidence-disclosure{font-size:13px!important;border-left:3px solid #6ca3c4;padding-left:14px;margin-top:18px}
 main .pr-evidence a{overflow-wrap:anywhere}
 @media(max-width:660px){main .pr-evidence{padding:20px 17px;border-radius:17px}main .pr-result-cards{grid-template-columns:1fr}main .pr-result-cards>div{padding:16px}}
+
+/* Diagnostic field notes and reader-owned troubleshooting record, v1. */
+main .pr-field-guide{margin:32px 0 42px!important;padding:clamp(21px,4vw,33px);border:1px solid #bfd3e5;border-radius:23px;background:linear-gradient(155deg,#f1f8fc,#fff);box-shadow:0 17px 35px rgba(26,65,101,.065)}
+main .pr-field-guide>h2{font-size:clamp(25px,3vw,33px)!important;line-height:1.2!important;margin:6px 0 16px!important}
+main .pr-field-guide .pr-kicker{font-size:11px!important;text-transform:uppercase;font-weight:800!important;letter-spacing:.13em!important;color:#356e9b!important;margin:0 0 9px!important}
+main .pr-field-guide .pr-field-intro{font-size:15px!important;color:#455c70!important;line-height:1.7!important}
+main .pr-field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:21px 0}
+main .pr-field-grid>div{padding:19px;border:1px solid #d4e3ef;border-radius:15px;background:#fff}
+main .pr-field-grid strong{display:block;font-size:16px;line-height:1.45;color:#193955}
+main .pr-field-grid p{font-size:14px!important;line-height:1.7!important;margin:10px 0 0}
+main .pr-field-guide .pr-observation{font-size:11px;font-weight:800;letter-spacing:.09em;color:#407aa2;text-transform:uppercase;display:block;margin-bottom:7px}
+main .pr-field-guide .pr-why{border-radius:13px;border-left:3px solid #528eb8;background:#e8f2fa;padding:17px 20px;font-size:14px;line-height:1.72;color:#38526b}
+main .pr-field-guide .pr-boundary{font-size:13px!important;color:#4d677e!important}
+main .pr-notes{margin:40px 0;padding:23px 25px;border:1px solid #c8d9e8;border-radius:19px;background:#f6f9fd}
+main .pr-notes summary{cursor:pointer;font-size:18px;font-weight:750;color:#1c4768}
+main .pr-notes>p,main .pr-notes p{font-size:13px!important;color:#536981!important;margin:12px 0}
+main .pr-note-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0}
+main .pr-notes label{display:block;font-size:13px;font-weight:750;color:#294b65}
+main .pr-notes input,main .pr-notes select,main .pr-notes textarea{display:block;width:100%;max-width:100%;margin:7px 0 0;padding:12px 13px;border:1px solid #aebfd0;border-radius:10px;background:#fff;color:#1e3750;font:inherit;font-size:14px;min-height:42px}
+main .pr-notes textarea{min-height:83px;resize:vertical}
+main .pr-notes button{border:none;border-radius:10px;background:#214a70;color:#fff;padding:12px 17px;font-weight:750;cursor:pointer;margin:6px 10px 6px 0}
+main .pr-notes button:hover{background:#103251}
+main .pr-notes [data-pr-output]{min-height:180px;font-family:ui-monospace,monospace}
+main .pr-notes [hidden]{display:none!important}
+@media(max-width:700px){main .pr-field-guide{padding:19px 17px}main .pr-field-grid,main .pr-note-grid{grid-template-columns:1fr}main .pr-field-grid>div{padding:16px}main .pr-notes{padding:20px 16px}}
+@media print{main .pr-notes{display:none!important}main .pr-field-guide{box-shadow:none!important}main .pr-field-grid{break-inside:avoid}body:has(> main):not(:has(.hero)) main{box-shadow:none!important;border:none!important}}
