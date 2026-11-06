@@ -86,7 +86,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   for(const [slug,selector] of contrastScenarios){
     await desktop.goto(base+"/"+slug,{waitUntil:"domcontentloaded"});
     const results=await desktop.locator(selector).evaluateAll(els=>{
-      const rgb=s=>{const m=s.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);return m?[Number(m[1]),Number(m[2]),Number(m[3])]:null};
+      const rgb=s=>{const m=s.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);return m?[Number(m[1]),Number(m[2]),Number(m[3])]:null};
       const luminance=c=>{const t=c.map(v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4});return t[0]*.2126+t[1]*.7152+t[2]*.0722};
       const ratio=(a,b)=>{const l=[luminance(a),luminance(b)].sort((a,b)=>b-a);return(l[0]+.05)/(l[1]+.05)};
       return els.slice(0,6).map(el=>{
