@@ -26,3 +26,15 @@ function fakeEl(value=""){return {value,hidden:false,dataset:{},textContent:"",a
 test("IPv4 calculator distinguishes same and different /24 networks",()=>{const ids=["lab-form","lab-result","lab-title","lab-message","lab-networks","computer-ip","printer-ip","prefix","same-sample","different-sample"];const m=Object.fromEntries(ids.map(id=>[id,fakeEl()]));m["computer-ip"].value="192.168.1.24";m["printer-ip"].value="192.168.1.88";m.prefix.value="24";const d={getElementById:id=>m[id]};vm.runInNewContext(inlineLast(read("tools/connection-path.html")),{document:d,Number,Math,parseInt});m["lab-form"].onsubmit({preventDefault(){}});assert.match(m["lab-title"].textContent,/Same calculated/);assert.match(m["lab-networks"].textContent,/192\.168\.1\.0\/24/);m["printer-ip"].value="192.168.2.88";m["lab-form"].onsubmit({preventDefault(){}});assert.match(m["lab-title"].textContent,/Different calculated/);});
 test("Page fit tool compares A4 and Letter dimensions",()=>{const ids=["fit-form","fit-result","fit-title","fit-summary","fit-detail","paper","content-width","content-height","margin-left","margin-top","paper-rect","safe-rect","content-rect","page-label"];const m=Object.fromEntries(ids.map(id=>[id,fakeEl()]));Object.assign(m.paper,{value:"a4"});m["content-width"].value="190";m["content-height"].value="270";m["margin-left"].value="10";m["margin-top"].value="10";vm.runInNewContext(inlineLast(read("tools/page-fit.html")),{document:{getElementById:id=>m[id]},Number,Math});assert.equal(m["fit-result"].dataset.outcome,"fits");m.paper.value="letter";m["fit-form"].onsubmit({preventDefault(){}});assert.equal(m["fit-result"].dataset.outcome,"does-not-fit");assert.match(m["fit-detail"].textContent,/reduce the content/i);});
 test("Website sitemap and crawl files are present",()=>{assert.ok(known.has("robots.txt"));assert.ok(known.has("ads.txt"));assert.match(read("robots.txt"),/sitemap/i);assert.match(read("ads.txt"),/pub-2393332073506347/);});
+
+test("AdSense privacy notices and evidence-led diagnostic pages are included",()=>{
+  const privacy=read("privacy.html");
+  for(const pattern of [/third-party vendors/i,/prior visits/i,/adssettings\.google\.com/i,/consent management platform/i])assert.match(privacy,pattern);
+  const lab=read("tools/print-path-lab.html");
+  for(const pattern of [/<main\b/i,/id="pp-form"/,/id="pp-results"/,/support\.microsoft\.com/i,/learn\.microsoft\.com/i,/privacy/i])assert.match(lab,pattern);
+  assert.match(read("guides.html"),/\/tools\/print-path-lab/);
+  assert.match(read("sitemap.xml"),/\/tools\/print-path-lab/);
+  assert.match(read("printer-offline-windows-11.html"),/Get-PrinterPort/);
+  assert.match(read("printer-not-connecting-wifi.html"),/wifi-four-stages/);
+  assert.match(read("printer-printing-blank-pages.html"),/blank-source-study/);
+});
