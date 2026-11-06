@@ -35,6 +35,7 @@
 - Clarify the Privacy Policy's Google advertising-cookie practices, opt-out links, local diagnostic-data handling and regional consent responsibilities.
 - Publish a new original Print Path Evidence Lab: a browser-only interpretation of printer self-tests, second-device tests, network state and Windows queue state, with cited Microsoft technical references. It does **not** claim hardware communication.
 - Add documented print-path reasoning to the offline guide and network-association/IP/print-path analysis to Wi-Fi guidance.
+- Add carefully labeled manufacturer-documentation examples for Brother MFC-L2710DW, Canon TR4700 series and Epson ET-2800. These are not reports of hands-on tests.
 - Add an original comparison matrix to blank-pages guidance, with explicit vendor-model limits and official sources.
 - Connect these resources from main topic pages and the guide library, preserving meaningful navigation.
 - Technical quality tests are required before merge; no automatic AdSense resubmission.
