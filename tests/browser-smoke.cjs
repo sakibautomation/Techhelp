@@ -67,6 +67,41 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   await desktop.goto(base+"/guides",{waitUntil:"domcontentloaded"});
   assert.equal(await desktop.locator(".nx-category-art").count(),5,"guide library has five 3D category visuals");
   await desktop.screenshot({path:path.join(art,"guides-3d-desktop.png"),fullPage:true,animations:"disabled"});
+  // Regression: dark redesign must not display pale text on legacy white cards.
+  const contrastCases=[
+    ["windows-pc-slow-errors",".diagnostic-card"],
+    ["windows-11-disk-100-percent-usage",".disk-step"],
+    ["windows-11-slow-startup-fixes",".startup-step"],
+    ["wifi-keeps-disconnecting-windows-11",".wifi-step"],
+    ["wifi-connected-no-internet-windows-11",".net-step"],
+    ["printer-printing-slowly-windows-11",".decision-card"],
+    ["printer-faded-streaked-pages",".pattern-card"],
+    ["brother-printer-offline-windows-11",".status-panel"],
+    ["canon-printer-not-found-wifi-windows-11",".connection-mode"],
+    ["canon-printer-not-responding-windows-11",".diagnostic-step"],
+    ["dell-printer-not-connecting-wifi-windows-11",".diag-cell"],
+    ["epson-printer-not-connecting-wifi",".flow-step"],
+    ["printer-printing-cut-off-pages",".paper-tile"],
+    ["epson-not-printing-black-ink",".nozzle-panel"]
+  ];
+  for(const [route,selector] of contrastCases){
+    await desktop.goto(base+"/"+route,{waitUntil:"domcontentloaded"});
+    const card=desktop.locator(selector).first();
+    assert.ok(await card.isVisible(),route+" must render sample diagnostic card");
+    const contrast=await card.evaluate(node=>{
+      const text=node.querySelector("strong,small,p,h3,figcaption,span")||node;
+      const rgb=(css)=>{const v=css.match(/[\\d.]+/g)?.slice(0,3).map(Number);return v&&v.length===3?v:null};
+      const bg=rgb(getComputedStyle(node).backgroundColor),fg=rgb(getComputedStyle(text).color);
+      if(!bg||!fg)return {ratio:0,bg,fg};
+      const L=v=>{const z=v/255;return z<=.04045?z/12.92:Math.pow((z+.055)/1.055,2.4)};
+      const l=arr=>.2126*L(arr[0])+.7152*L(arr[1])+.0722*L(arr[2]);
+      const x=l(bg),y=l(fg);return {ratio:(Math.max(x,y)+.05)/(Math.min(x,y)+.05),bg,fg};
+    });
+    assert.ok(contrast.ratio>=4.5,route+" "+selector+" readable card contrast: "+JSON.stringify(contrast));
+    if(route==="windows-pc-slow-errors"){
+      await desktop.screenshot({path:path.join(art,"windows-card-contrast-fixed-desktop.png"),fullPage:true,animations:"disabled"});
+    }
+  }
   await desktop.close();
   const mobile=await browser.newPage({...devices["Pixel 7"],viewport:{width:393,height:851}});
   await mobile.goto(base+"/",{waitUntil:"domcontentloaded"});
@@ -110,6 +145,10 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   await mobile.screenshot({path:path.join(art,"guides-mobile-3d.png"),fullPage:true,animations:"disabled"});
   assert.deepEqual(overflow,[],"Pages with mobile horizontal overflow");
   assert.deepEqual(jsErrors,[],"Client-side script errors while opening guide library");
+  await mobile.goto(base+"/windows-pc-slow-errors",{waitUntil:"domcontentloaded"});
+  assert.ok(await mobile.locator(".diagnostic-flow").isVisible(),"mobile PC diagnostic panel");
+  assert.equal(await mobile.locator(".diagnostic-card").count(),3,"all PC cards remain");
+  await mobile.screenshot({path:path.join(art,"windows-card-contrast-fixed-mobile.png"),fullPage:true,animations:"disabled"});
   await mobile.close();
   process.stdout.write("Browser smoke passed: every page opens at mobile width; 3D hero, menu, reduced motion, no overflow, diagnostics, page fit, local notes.\n");
  }finally{await browser.close();await new Promise(ok=>app.close(ok))}
