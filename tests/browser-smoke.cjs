@@ -90,7 +90,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     assert.ok(await card.isVisible(),route+" must render sample diagnostic card");
     const contrast=await card.evaluate(node=>{
       const text=node.querySelector("strong,small,p,h3,figcaption,span")||node;
-      const rgb=(css)=>{const v=css.match(/[\\d.]+/g)?.slice(0,3).map(Number);return v&&v.length===3?v:null};
+      const rgb=(css)=>{const v=css.match(/[0-9.]+/g)?.slice(0,3).map(Number);return v&&v.length===3?v:null};
       const bg=rgb(getComputedStyle(node).backgroundColor),fg=rgb(getComputedStyle(text).color);
       if(!bg||!fg)return {ratio:0,bg,fg};
       const L=v=>{const z=v/255;return z<=.04045?z/12.92:Math.pow((z+.055)/1.055,2.4)};
