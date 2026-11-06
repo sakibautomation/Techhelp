@@ -102,6 +102,12 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     await mobile.goto(base+"/"+pageFile.replace(/\.html$/,""),{waitUntil:"domcontentloaded"});
     assert.ok(await mobile.locator(".nx-hero .nx-scene").isVisible(),pageFile+" mobile 3D hero");
   }
+  await mobile.goto(base+"/printer-offline-windows-11",{waitUntil:"domcontentloaded"});
+  const articleMotion=await mobile.locator(".nx-hero .nx-scene").evaluate(el=>getComputedStyle(el).animationName);
+  assert.equal(articleMotion,"none","Article 3D art honors reduced-motion accessibility");
+  await mobile.screenshot({path:path.join(art,"article-mobile-3d.png"),fullPage:true,animations:"disabled"});
+  await mobile.goto(base+"/guides",{waitUntil:"domcontentloaded"});
+  await mobile.screenshot({path:path.join(art,"guides-mobile-3d.png"),fullPage:true,animations:"disabled"});
   assert.deepEqual(overflow,[],"Pages with mobile horizontal overflow");
   assert.deepEqual(jsErrors,[],"Client-side script errors while opening guide library");
   await mobile.close();
