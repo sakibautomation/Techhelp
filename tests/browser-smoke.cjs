@@ -99,6 +99,9 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     });
     assert.ok(contrast.ratio>=4.5,route+" "+selector+" readable card contrast: "+JSON.stringify(contrast));
     if(route==="windows-pc-slow-errors"){
+      const introColor=await desktop.locator(".pr-field-intro").first().evaluate(el=>getComputedStyle(el).color);
+      const channels=(introColor.match(/[0-9]+/g)||[]).slice(0,3).map(Number);
+      assert.ok(channels.length===3&&channels.reduce((a,b)=>a+b,0)>520,"Article introduction must remain light on dark: "+introColor);
       await desktop.screenshot({path:path.join(art,"windows-card-contrast-fixed-desktop.png"),fullPage:true,animations:"disabled"});
     }
   }
