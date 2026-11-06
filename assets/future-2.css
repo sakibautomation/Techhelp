@@ -196,3 +196,83 @@ body.nx-document main article,body.nx-document main section{min-width:0}
 body.nx-document main .quick[style*="overflow-x"],body.nx-document main [role="region"][style*="overflow-x"]{scrollbar-color:#5584a9 #172c43}
 body.nx-document main table{overflow-wrap:break-word}
 @media(max-width:580px){body.nx-document .nx-wordmark{font-size:16px!important}body.nx-document .nx-wordmark > span:last-child{white-space:nowrap}body.nx-document main .quick:has(table){overflow-x:auto!important}body.nx-document main .pr-field-grid{min-width:0}body.nx-document main .nx-inline-visual{overflow:hidden}}
+
+
+/* ACCESSIBILITY HOTFIX 2026-11-06
+   Legacy troubleshooting infographics used white cards and pastel backgrounds.
+   New dark typography rules forced light text over those cards.
+   Scope all repairs to the inner editorial theme; preserve visual diagrams and tools. */
+body.nx-document main :is(
+  .diagnostic-flow,.disk-flow,.startup-flow,.wifi-flow,.net-flow,
+  .decision-flow,.diag,.diagnosis,.route,.paper-guide,
+  .checklist,.callout,.caution,.refs,.pattern-gallery,
+  .diagnostic-grid,.status-diagram
+){
+  color:#d9eafa!important;
+  background:linear-gradient(145deg,#1a344c,#112539)!important;
+  border:1px solid rgba(151,210,247,.27)!important;
+  border-radius:18px;
+}
+body.nx-document main :is(
+  .diagnostic-card,.disk-step,.startup-step,.wifi-step,.net-step,
+  .decision-card,.pattern-card,.status-panel,.status-indicator,
+  .connection-mode,.connection-node,.diagnostic-step,.diag-cell,
+  .flow-step,.paper-tile,.nozzle-panel,.route article,
+  .diagnosis article
+){
+  background:#12283d!important;
+  color:#dcebf9!important;
+  border:1px solid rgba(155,214,251,.28)!important;
+  border-radius:13px;
+}
+body.nx-document main :is(
+  .diagnostic-card,.disk-step,.startup-step,.wifi-step,.net-step,
+  .decision-card,.pattern-card,.status-panel,.status-indicator,
+  .connection-mode,.connection-node,.diagnostic-step,.diag-cell,
+  .flow-step,.paper-tile,.nozzle-panel,.route article,
+  .diagnosis article
+) :is(p,small,strong,b,span,li,figcaption,h3,h4){
+  color:#e3eefb!important;
+}
+body.nx-document main .diagnostic-flow figcaption{
+  color:#f3f8ff!important;
+  font-weight:800;
+  font-size:clamp(16px,2vw,21px);
+}
+body.nx-document main .diagnostic-card strong{
+  color:#f7fbff!important;
+  font-size:clamp(16px,2vw,19px);
+}
+body.nx-document main .diagnostic-card small{
+  color:#d6e5f5!important;
+  font-size:clamp(13px,1.6vw,15px)!important;
+  line-height:1.7!important;
+}
+body.nx-document main .diagnostic-card .num{
+  background:#d9eafe!important;
+  color:#13477d!important;
+  font-weight:850;
+}
+body.nx-document main .flow-help{
+  color:#d3e4f4!important;
+}
+body.nx-document main #result{
+  background:#193249!important;
+  color:#f0f7ff!important;
+  border:1px solid #477d9d!important;
+}
+body.nx-document main #result :is(h2,h3,p,li,small,strong,span){
+  color:#edf7ff!important;
+}
+/* Explicit focus, including touch after activating each troubleshooting card. */
+body.nx-document main :is(.diagnostic-card,.disk-step,.startup-step,.wifi-step,.net-step,.decision-card){
+  box-shadow:0 8px 22px rgba(1,10,21,.12);
+}
+@media print{
+ body.nx-document main :is(.diagnostic-flow,.diagnostic-card,.disk-step,.startup-step,.wifi-step,.net-step,.decision-card,.flow-step,.status-panel,.connection-mode,.diagnostic-step,.diag-cell){
+   background:#fff!important;color:#111!important;border-color:#aaa!important;
+ }
+ body.nx-document main :is(.diagnostic-flow,.diagnostic-card,.disk-step,.startup-step,.wifi-step,.net-step,.decision-card,.flow-step,.status-panel,.connection-mode,.diagnostic-step,.diag-cell) :is(p,small,strong,b,span,li,figcaption,h3,h4){
+   color:#111!important;
+ }
+}
