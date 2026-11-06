@@ -115,6 +115,23 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     const rgb=(textColor.match(/[0-9]+/g)||[]).slice(0,3).map(Number);
     assert.ok(rgb.length===3&&rgb.reduce((sum,n)=>sum+n,0)>530,slug+" "+selector+" must be legible on the dark card: "+textColor);
   }
+  // Original evidence lab: tests must be distinct and give transparent, appropriate next actions.
+  await desktop.goto(base+"/tools/print-path-lab",{waitUntil:"domcontentloaded"});
+  assert.ok(await desktop.locator("#pp-form").isVisible(),"evidence lab is available");
+  await desktop.locator("#pp-selftest").selectOption("no");
+  await desktop.locator("#pp-form button[type=submit]").click();
+  assert.match(await desktop.locator("#pp-heading").innerText(),/printer.s own reported error/i);
+  await desktop.locator("#pp-selftest").selectOption("yes");
+  await desktop.locator("#pp-other").selectOption("yes");
+  await desktop.locator("#pp-form button[type=submit]").click();
+  assert.match(await desktop.locator("#pp-heading").innerText(),/affected Windows computer/i);
+  await desktop.locator("#pp-network").selectOption("disconnected");
+  await desktop.locator("#pp-form button[type=submit]").click();
+  assert.match(await desktop.locator("#pp-heading").innerText(),/actually joined the network/i);
+  await desktop.screenshot({path:path.join(art,"print-path-lab-desktop.png"),fullPage:true,animations:"disabled"});
+  await desktop.goto(base+"/privacy",{waitUntil:"domcontentloaded"});
+  assert.match(await desktop.locator("main").innerText(),/Google Ads Settings/);
+  assert.match(await desktop.locator("main").innerText(),/consent management platform/i);
   await desktop.close();
   const mobile=await browser.newPage({...devices["Pixel 7"],viewport:{width:393,height:851}});
   await mobile.goto(base+"/",{waitUntil:"domcontentloaded"});
@@ -133,7 +150,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   const toolsDims=await mobile.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));
   assert.ok(toolsDims.content<=toolsDims.viewport+3,"mobile tool horizontal overflow: "+JSON.stringify(toolsDims));
   // Visit every published document at Android width, catching hidden overflow and runtime errors.
-  const allPageFiles=fs.readdirSync(root).filter(p=>p.endsWith(".html")).concat(["tools/connection-path.html","tools/page-fit.html"]);
+  const allPageFiles=fs.readdirSync(root).filter(p=>p.endsWith(".html")).concat(["tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"]);
   const jsErrors=[];
   mobile.on("pageerror",err=>jsErrors.push(err.message));
   const overflow=[];
