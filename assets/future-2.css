@@ -336,3 +336,23 @@ body.nx-document:has(> main):not(:has(.hero)) main :is(.pattern-card,.paper-tile
 body.nx-document:has(> main):not(:has(.hero)) main .pattern-card .print-sample.faint{
  color:#74869d!important;
 }
+
+
+/* Main is nested in .nx-layout, so do not require body > main in overrides.
+   Double-class scope gives the new 3D theme precedence over legacy callouts. */
+body.nx-document.nx-document main .pr-field-guide .pr-field-intro,
+body.nx-document.nx-document main .pr-evidence p,
+body.nx-document.nx-document main .pr-notes p{
+  color:#d9eafa!important;
+}
+body.nx-document.nx-document main :is(.pattern-card,.paper-tile,.nozzle-panel){
+  background:#f5f9ff!important;
+  color:#19334e!important;
+  border-color:#b3cfe5!important;
+}
+body.nx-document.nx-document main :is(.pattern-card,.paper-tile,.nozzle-panel) :is(p,small,strong,b,span,li,h3,h4,.small,.print-sample,.nozzle-pattern){
+  color:#19334e!important;
+}
+body.nx-document.nx-document main .pattern-card .print-sample.faint{
+  color:#74869d!important;
+}
