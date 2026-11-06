@@ -65,7 +65,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   mobile.on("pageerror",err=>jsErrors.push(err.message));
   const overflow=[];
   for(const pageFile of allPageFiles){
-    const route="/"+pageFile.replace(/\\.html$/,"");
+    const route="/"+pageFile.replace(/\.html$/,"");
     const response=await mobile.goto(base+route,{waitUntil:"domcontentloaded"});
     assert.equal(response.status(),200,"HTTP 200 for "+route);
     const data=await mobile.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth,title:document.title,h1:document.querySelector("h1")?.textContent?.trim()}));
