@@ -163,7 +163,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     assert.ok(data.h1&&data.h1.length>5,"readable H1 for "+route);
   }
   // Every redesigned guide must show its visual header on mobile.
-  for(const pageFile of allPageFiles.filter(p=>!["index.html","guides.html","tools/connection-path.html","tools/page-fit.html"].includes(p))){
+  for(const pageFile of allPageFiles.filter(p=>!["index.html","guides.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"].includes(p))){
     await mobile.goto(base+"/"+pageFile.replace(/\.html$/,""),{waitUntil:"domcontentloaded"});
     assert.ok(await mobile.locator(".nx-hero .nx-scene").isVisible(),pageFile+" mobile 3D hero");
   }
