@@ -113,3 +113,18 @@ body:has(> main):not(:has(.hero)) footer{background:linear-gradient(120deg,#0a12
 body:has(> main):not(:has(.hero)) footer a{color:#bcd2e8!important}
 @media(max-width:760px){body:has(> main):not(:has(.hero)) main{margin:22px auto 45px!important;width:calc(100% - 20px)!important;padding:25px 19px!important;border-radius:20px!important}body:has(> main):not(:has(.hero)) main h1,body:has(> main):not(:has(.hero)) main article>h1{padding:10px 0 0!important;margin-top:5px!important}}
 @media(prefers-reduced-motion:reduce){body:has(> main):not(:has(.hero)) *{animation:none!important;scroll-behavior:auto!important}}
+
+/* Reusable evidence-led diagnostic panels: helpful content is primary, animation is secondary. */
+main .pr-evidence{margin:34px 0 44px;padding:clamp(20px,4vw,34px);border:1px solid #c5d8e6;border-radius:23px;background:linear-gradient(145deg,#edf5fb,#f7fbfe);box-shadow:0 16px 35px rgba(22,50,79,.06)}
+main .pr-evidence .pr-evidence-kicker{font-size:11px!important;letter-spacing:.15em!important;font-weight:800!important;text-transform:uppercase!important;color:#326a99!important;margin:0 0 15px!important}
+main .pr-evidence h2{font-size:clamp(25px,3vw,34px)!important;line-height:1.22!important;letter-spacing:-.04em!important;margin:0 0 17px!important;color:#183b55!important}
+main .pr-evidence p{font-size:15px!important;line-height:1.75!important;color:#455f77!important}
+main .pr-evidence-steps{padding-left:22px;margin:19px 0 24px}
+main .pr-evidence-steps li{padding:0 0 7px 4px!important;color:#435e74!important}
+main .pr-result-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:25px 0}
+main .pr-result-cards>div{min-width:0;background:#fff;border:1px solid #cddfea;border-radius:14px;padding:21px}
+main .pr-result-cards strong{font-size:15px;line-height:1.55;color:#1a4562}
+main .pr-result-cards p{margin:9px 0 0!important;font-size:14px!important;line-height:1.7!important}
+main .pr-evidence .pr-evidence-disclosure{font-size:13px!important;border-left:3px solid #6ca3c4;padding-left:14px;margin-top:18px}
+main .pr-evidence a{overflow-wrap:anywhere}
+@media(max-width:660px){main .pr-evidence{padding:20px 17px;border-radius:17px}main .pr-result-cards{grid-template-columns:1fr}main .pr-result-cards>div{padding:16px}}
