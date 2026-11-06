@@ -147,6 +147,16 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   await mobile.screenshot({path:path.join(art,"guides-mobile-3d.png"),fullPage:true,animations:"disabled"});
   assert.deepEqual(overflow,[],"Pages with mobile horizontal overflow");
   assert.deepEqual(jsErrors,[],"Client-side script errors while opening guide library");
+  // The original customer screenshot was taken on Android; protect that layout.
+  await mobile.goto(base+"/windows-pc-slow-errors",{waitUntil:"domcontentloaded"});
+  const phoneTiles=await mobile.locator(".diagnostic-card").evaluateAll(cards=>cards.map(card=>{
+    const style=getComputedStyle(card);
+    const title=card.querySelector("strong");
+    return{background:style.backgroundColor,titleColor:title?getComputedStyle(title).color:""};
+  }));
+  assert.equal(phoneTiles.length,3,"Windows problem diagnostic should show all three cards");
+  assert.ok(phoneTiles.every(t=>t.background==="rgb(32, 58, 84)"&&t.titleColor==="rgb(240, 248, 255)"),"Cards must be high-contrast on mobile: "+JSON.stringify(phoneTiles));
+  await mobile.screenshot({path:path.join(art,"windows-cards-mobile-contrast-fixed.png"),fullPage:true,animations:"disabled"});
   await mobile.close();
   process.stdout.write("Browser smoke passed: every page opens at mobile width; 3D hero, menu, reduced motion, no overflow, diagnostics, page fit, local notes.\n");
  }finally{await browser.close();await new Promise(ok=>app.close(ok))}
