@@ -86,11 +86,12 @@
       <div class="privacy-note"><span aria-hidden="true">◇</span> Your answers stay in this browser.</div>
     </div>
     <div class="diagnose-panel">
+      <noscript><p>Choose a symptom in the <a href="/guides">list of printer guides</a>. The interactive check needs JavaScript.</p></noscript>
       <form id="diagnose-form">
         <label for="symptom">01 / Select a symptom</label>
-        <select id="symptom" name="symptom" required><option value="">Choose the problem...</option><option value="offline">Printer shows Offline</option><option value="notfound">Printer is not found</option><option value="queue">Jobs stay stuck in the queue</option><option value="driver">Driver is unavailable</option><option value="blank">Pages are blank or faded</option></select>
+        <select id="symptom" required><option value="">Choose the problem...</option><option value="offline">Printer shows Offline</option><option value="notfound">Printer is not found</option><option value="queue">Jobs stay stuck in the queue</option><option value="driver">Driver is unavailable</option><option value="blank">Pages are blank or faded</option></select>
         <label for="connection">02 / How is it connected?</label>
-        <select id="connection" name="connection" required><option value="">Choose a connection...</option><option value="wifi">Wi-Fi / wireless</option><option value="usb">USB cable</option><option value="ethernet">Ethernet / wired network</option><option value="unknown">Not sure</option></select>
+        <select id="connection" required><option value="">Choose a connection...</option><option value="wifi">Wi-Fi / wireless</option><option value="usb">USB cable</option><option value="ethernet">Ethernet / wired network</option><option value="unknown">Not sure</option></select>
         <button class="button button-primary button-full" type="submit">Show my starting point <span aria-hidden="true">→</span></button>
       </form>
       <div class="diagnose-result" id="diagnose-result" role="status" aria-live="polite" hidden><div class="result-eyebrow">Your recommended starting point</div><h3 id="result-title"></h3><p id="result-body"></p><a id="result-link" class="result-link" href="/printer-not-printing">Read the full guide <span aria-hidden="true">→</span></a><button type="button" id="diagnose-reset" class="reset-link">Try another symptom</button></div>

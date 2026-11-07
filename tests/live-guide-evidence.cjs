@@ -70,6 +70,15 @@ async function measuredExamples(page){
  await page.locator("#prefix").selectOption("25");
  await page.locator("#lab-form button").click();
  assert.match(await page.locator("#lab-title").innerText(),/identical/);
+ await page.locator("#mask-sample").click();
+ assert.equal(await page.locator("#lab-result").getAttribute("data-type"),"mixed");
+ assert.match(await page.locator("#lab-networks").innerText(),/Printer subnet 192\.168\.1\.128\/25 — PC address is outside/);
+ await page.locator("#printer-mask").fill("/24");
+ assert.ok(await page.locator("#lab-result").isHidden());
+ await page.locator("#lab-compare").click();
+ assert.equal(await page.locator("#lab-result").getAttribute("data-type"),"same");
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+3),"Subnet comparison exceeds viewport");
+ console.log("Verified both subnet masks at "+page.viewportSize().width+" px.");
  console.log("Verified the PDF comparison, impossible margins and duplicate address at "+page.viewportSize().width+" px.");
 }
 async function controlledTest(page,label){

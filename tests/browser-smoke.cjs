@@ -31,6 +31,25 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   await desktop.locator("#printer-ip").fill("192.168.2.88");
   await desktop.locator("#lab-form button[type=submit]").click();
   assert.match(await desktop.locator("#lab-title").innerText(),/Different calculated/);
+  const withoutScripts=await browser.newPage({javaScriptEnabled:false});
+  await withoutScripts.goto(base+"/tools/connection-path",{waitUntil:"domcontentloaded"});
+  assert.ok(await withoutScripts.locator("#lab-compare").isDisabled());
+  assert.ok(await withoutScripts.getByRole("link",{name:"compare the worked examples below"}).isVisible());
+  for(const [route,id] of [["/","diagnose-form"],["/tools/page-fit","fit-form"]]){
+    await withoutScripts.goto(base+route,{waitUntil:"domcontentloaded"});
+    if(id==="diagnose-form"){
+      await withoutScripts.locator("#symptom").selectOption("offline");
+      await withoutScripts.locator("#connection").selectOption("wifi");
+    }else{
+      await withoutScripts.locator("#paper").selectOption("letter");
+    }
+    const [request]=await Promise.all([
+      withoutScripts.waitForRequest(request=>request.isNavigationRequest() && request.frame()===withoutScripts.mainFrame()),
+      withoutScripts.locator("#"+id+" button[type=submit]").click()
+    ]);
+    assert.equal(new URL(request.url()).search,"",id+" included answers in its URL");
+  }
+  await withoutScripts.close();
   await desktop.goto(base+"/tools/page-fit",{waitUntil:"domcontentloaded"});
   assert.equal(await desktop.locator("#fit-result").getAttribute("data-outcome"),"fits");
   await desktop.locator("#paper").selectOption("letter");
