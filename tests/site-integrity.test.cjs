@@ -25,6 +25,36 @@ test("Stylesheets have matched CSS blocks",()=>{for(const p of ["assets/experien
 function fakeEl(value=""){return {value,hidden:false,dataset:{},textContent:"",attrs:{},addEventListener(event,fn){this["on"+event]=fn},setAttribute(k,v){this.attrs[k]=v},requestSubmit(){this.onsubmit?.({preventDefault(){}})}}}
 test("IPv4 calculator distinguishes same and different /24 networks",()=>{const ids=["lab-form","lab-result","lab-title","lab-message","lab-networks","computer-ip","printer-ip","prefix","same-sample","different-sample"];const m=Object.fromEntries(ids.map(id=>[id,fakeEl()]));m["computer-ip"].value="192.168.1.24";m["printer-ip"].value="192.168.1.88";m.prefix.value="24";const d={getElementById:id=>m[id]};vm.runInNewContext(inlineLast(read("tools/connection-path.html")),{document:d,Number,Math,parseInt});m["lab-form"].onsubmit({preventDefault(){}});assert.match(m["lab-title"].textContent,/Same calculated/);assert.match(m["lab-networks"].textContent,/192\.168\.1\.0\/24/);m["printer-ip"].value="192.168.2.88";m["lab-form"].onsubmit({preventDefault(){}});assert.match(m["lab-title"].textContent,/Different calculated/);});
 test("Page fit tool compares A4 and Letter dimensions",()=>{const ids=["fit-form","fit-result","fit-title","fit-summary","fit-detail","paper","content-width","content-height","margin-left","margin-top","paper-rect","safe-rect","content-rect","page-label"];const m=Object.fromEntries(ids.map(id=>[id,fakeEl()]));Object.assign(m.paper,{value:"a4"});m["content-width"].value="190";m["content-height"].value="270";m["margin-left"].value="10";m["margin-top"].value="10";vm.runInNewContext(inlineLast(read("tools/page-fit.html")),{document:{getElementById:id=>m[id]},Number,Math});assert.equal(m["fit-result"].dataset.outcome,"fits");m.paper.value="letter";m["fit-form"].onsubmit({preventDefault(){}});assert.equal(m["fit-result"].dataset.outcome,"does-not-fit");assert.match(m["fit-detail"].textContent,/reduce the content/i);});
+test("The Print Path Lab isolates the PC only with two confirmed print results",()=>{
+  const fields = new Map();
+  function field(id){
+    if(!fields.has(id))fields.set(id,fakeEl("unknown"));
+    return fields.get(id);
+  }
+  for(const id of ["pp-actions","pp-links"]){
+    field(id).replaceChildren=()=>{};
+    field(id).appendChild=()=>{};
+  }
+  field("pp-results").scrollIntoView=()=>{};
+  const document={getElementById:field,createElement:()=>fakeEl()};
+  const window={matchMedia:()=>({matches:false})};
+  vm.runInNewContext(inlineLast(read("tools/print-path-lab.html")),{document,window});
+  field("pp-connection").value="wireless";
+  field("pp-windows").value="offline";
+  for(const selftest of ["unknown","yes","no"]){
+    for(const other of ["unknown","yes","no"]){
+      field("pp-selftest").value=selftest;
+      field("pp-other").value=other;
+      field("pp-form").onchange();
+      assert.ok(field("pp-results").hidden,"An edited answer hides the old result");
+      field("pp-form").requestSubmit();
+      assert.equal(field("pp-results").hidden,false);
+      const knownPC=selftest==="yes" && other==="yes";
+      assert.equal(field("pp-heading").textContent==="Focus on the affected Windows computer",knownPC);
+      assert.equal(field("pp-why").textContent.includes("successful print from another device"),knownPC);
+    }
+  }
+});
 test("Website sitemap and crawl files are present",()=>{assert.ok(known.has("robots.txt"));assert.ok(known.has("ads.txt"));assert.match(read("robots.txt"),/sitemap/i);assert.match(read("ads.txt"),/pub-2393332073506347/);});
 
 test("AdSense privacy notices and evidence-led diagnostic pages are included",()=>{

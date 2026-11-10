@@ -101,7 +101,8 @@ test("Day 2 blank pages guide documents the ET-2800 decision with required clean
   'power_cleaning_lcd_et2800_l3260.html',
   'does not claim that we operated these printers'
  ]) assert.ok(s.includes(phrase),"Blank-page source/method warning absent: "+phrase);
- assert.ok(s.indexOf('id="et2800-blank-test-decision"')<s.indexOf("1. Print a built-in test page"));
+ const generalTestHeading=s.indexOf('<h2 id="printer-self-test">1. Print a built-in test page</h2>');
+ assert.ok(generalTestHeading>s.indexOf('id="et2800-blank-test-decision"'));
 });
 
 test("Day 2 discovery guide separates USB, manual-IP, Wi-Fi Direct and shared queues",()=>{
@@ -164,9 +165,16 @@ test("General Windows slowdown guide distinguishes actual printer bottlenecks",(
 });
 test("Substantive editorial improvements have honest sitemap lastmod entries",()=>{
  const sm=read("sitemap.xml");
- for(const slug of ['device-setup-installation','brother-printer-offline-windows-11',
-  'remote-assistance-safety','windows-pc-slow-errors']){
-  const expected=slug==='windows-pc-slow-errors'?'2026-11-10':'2026-11-07';
+ const dates={
+  "device-setup-installation":"2026-11-10",
+  "brother-printer-offline-windows-11":"2026-11-07",
+  "remote-assistance-safety":"2026-11-07",
+  "windows-pc-slow-errors":"2026-11-10",
+  "printer-printing-blank-pages":"2026-11-10",
+  "printer-not-found-windows-11":"2026-11-10",
+  "tools/print-path-lab":"2026-11-10"
+ };
+ for(const [slug,expected] of Object.entries(dates)){
   assert.ok(sm.includes('<loc>https://printerresolve.com/'+slug+'</loc><lastmod>'+expected+'</lastmod>'));
  }
 });

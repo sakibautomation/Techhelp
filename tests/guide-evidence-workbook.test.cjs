@@ -51,7 +51,7 @@ test("Diagnostic logic changes recommendations by observed evidence",()=>{
   ["blankpages",{internal:"blank",technology:"inkjet"},"nozzle-check"],
   ["blankpages",{internal:"marks",document:"one"},"print preview"],
   ["blankpages",{internal:"blank",technology:"laser"},"toner"],
-  ["discovery",{connection:"wifi",evidence:"ip"},"Add a new device manually"],
+  ["discovery",{connection:"wifi",evidence:"ip",windows:"missing"},"Add a new device manually"],
   ["discovery",{connection:"wifi",evidence:"noip"},"DHCP"],
   ["discovery",{connection:"usb"},"USB"],
   ["driverchoice",{download:"thirdparty"},"third-party driver-downloader"],
@@ -59,6 +59,17 @@ test("Diagnostic logic changes recommendations by observed evidence",()=>{
   ["driverchoice",{status:"basic"},"full-feature software"]
  ];
  for(const [topic,inputs,fragment] of branches)assert.ok(advice(topic,inputs).includes(fragment),JSON.stringify({topic,inputs,fragment,actual:advice(topic,inputs)}));
+});
+test("A known printer IP does not supply a missing Windows observation",()=>{
+ const connection={connection:"wifi",evidence:"ip"};
+ for(const windows of [undefined,"unknown"]){
+  const result=advice("discovery",{...connection,windows});
+  assert.match(result,/Printers & scanners/);
+  assert.match(result,/select Add device/);
+  assert.doesNotMatch(result,/manually|finished without a match|cannot see/i);
+ }
+ assert.match(advice("discovery",{...connection,windows:"present"}),/Ready/);
+ assert.match(advice("discovery",{...connection,windows:"offline"}),/already lists this printer as Offline/);
 });
 test("Client logic parses, does not send data, and does not invent device tests",()=>{
  assert.doesNotThrow(()=>execFileSync(process.execPath,["--check",path.join(root,"assets/guide-evidence-workbook.js")]));

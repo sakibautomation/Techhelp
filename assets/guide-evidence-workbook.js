@@ -37,8 +37,8 @@ const CONFIG={
  blankpages:{
   label:"Blank-page differential",
   questions:[
-   {id:"internal",label:"What appears on a printer-generated internal test or nozzle page?",options:[["unknown","Not checked / unavailable"],["marks","Marks and text appear normally"],["blank","Entire internal sheet is blank"],["failed","Printer cannot complete its own test"]]},
-   {id:"document",label:"Which documents print blank from the affected computer?",options:[["unknown","Not compared"],["one","Only one file or application"],["all","Even a simple one-line text document"],["other","Another computer prints the same document correctly"]]},
+   {id:"internal",label:"What appears on a printer-generated internal test or nozzle page?",options:[["unknown","Not checked / unavailable"],["marks","Marks and text appear normally"],["blank","Entire internal sheet is blank"],["partial","Marks are faint, streaked or incomplete"],["failed","Printer cannot complete its own test"]]},
+   {id:"document",label:"Which documents print blank from the affected computer?",options:[["unknown","Not compared"],["pdf","Only one PDF"],["one","Only one other file or application"],["all","Even a simple one-line text document"],["other","Another computer prints the same document correctly"]]},
    {id:"technology",label:"What printing technology does the model use?",options:[["unknown","Not sure"],["inkjet","Inkjet / EcoTank / cartridge"],["laser","Laser / toner"]]}
   ]
  },
@@ -47,7 +47,7 @@ const CONFIG={
   questions:[
    {id:"connection",label:"How is this printer meant to connect to Windows?",options:[["unknown","Not sure"],["wifi","Wi-Fi / local network"],["usb","Direct USB cable"],["shared","Shared by another computer or managed print server"]]},
    {id:"evidence",label:"What has actually been verified?",options:[["unknown","No status report yet"],["ip","Printer report shows a usable network IP address"],["noip","Printer report shows no usable network address"],["usb","USB connection works on another authorized computer"]]},
-   {id:"windows",label:"What does Windows 11 show in Printers & scanners?",options:[["unknown","Not checked"],["missing","Printer not in the list or discovery results"],["offline","Printer is listed but marked Offline"],["present","Printer appears and is Ready"]]}
+   {id:"windows",label:"What does Windows 11 show in Printers & scanners?",options:[["unknown","Not checked"],["missing","Add device finished without finding the printer"],["offline","Printer is listed but marked Offline"],["present","Printer appears and is Ready"]]}
   ]
  },
  driverchoice:{
@@ -66,7 +66,30 @@ const CONFIG={
   ]
  }
 };
-function advice(topic,values){
+function blankPageCheck(v){
+ if(v.internal==="failed"){
+  return {target:"stop-checks",text:"Read the error on the printer and check its model manual before sending another job. The printer could not finish its own test."};
+ }
+ if(v.internal==="partial"){
+  return {target:"partial-output",text:"Some marks appeared on the printer’s own page. Compare the pattern with your model’s print-quality report to identify streaking, fading or a missing colour."};
+ }
+ if(v.internal==="blank"){
+  if(v.technology==="inkjet")return {target:"inkjet-nozzles",text:"A blank internal inkjet page points to the printer or its supplies. Check the ink supply and the model’s nozzle-check pattern before using a cleaning cycle."};
+  if(v.technology==="laser")return {target:"laser-toner",text:"Check the toner installation and any device error on this laser printer. Follow its manual for user-accessible parts."};
+  return {target:"check-supplies",text:"The internally generated page is also blank. Identify whether the model uses ink or toner, then follow the matching supply check."};
+ }
+ if(v.document==="pdf"){
+  return {target:"single-pdf",text:"Compare the PDF’s print preview with the original and print one short text document. If the text prints, check that PDF or its viewer first."};
+ }
+ if(v.document==="one"){
+  return {target:"simple-document",text:"Check print preview and print one line of text from a second application. Compare the two results using the same printer."};
+ }
+ if(v.document==="other" || (v.internal==="marks" && v.document==="all")){
+  return {target:"windows-output",text:"Check the selected printer and print settings on the affected computer, then send one Windows test page to that same printer."};
+ }
+ return {target:"printer-self-test",text:"Print the status or test page from the printer’s own controls and compare it with a one-line document from the computer. Enter the results above."};
+}
+function recommendation(topic,values){
  const v=values||{};
  let a="Record the observation before changing any setting.";
  if(topic==="printing"){
@@ -102,23 +125,20 @@ function advice(topic,values){
   else if(v.preview==="no"&&v.selftest==="no")a="The preview and internal page look correct. Compare one application versus another and check printer-specific printable margins and scaling.";
   else a="Compare preview, document paper, print-dialog paper and the printer's own test before deciding whether the problem is layout or hardware.";
  }else if(topic==="blankpages"){
-  if(v.internal==="failed")a="The printer could not complete its built-in test. First inspect its own display or error code and the exact model manual. Windows driver changes cannot prove a hardware path works.";
-  else if(v.internal==="blank"&&v.technology==="inkjet")a="A printer-generated sheet is blank on an inkjet: inspect the documented ink supply and nozzle-check pattern. Do not start repeated deep or power-cleaning cycles without the exact model's limits.";
-  else if(v.internal==="blank"&&v.technology==="laser")a="A printer-generated sheet is blank on a laser device: check its documented toner-cartridge installation and device error messages. Avoid touching hot fuser or internal imaging components.";
-  else if(v.internal==="blank")a="An internally generated test is also blank. That makes a single Windows PDF or app less likely; identify inkjet versus laser technology before selecting the manufacturer troubleshooting procedure.";
-  else if(v.internal==="marks"&&v.document==="one")a="The printer can mark paper independently, and only one document or app fails. Compare print preview and a short text document before replacing ink, toner or hardware.";
-  else if(v.internal==="marks"&&v.document==="all")a="The built-in page works but all computer jobs are blank. Verify the printer selected by Windows, test a simple text page, and examine driver, print mode and queue.";
-  else if(v.internal==="marks"&&v.document==="other")a="Another authorized computer prints the same file. Concentrate on the affected computer's app, printer destination and installed driver rather than a general printer reset.";
-  else a="Print one documented internal test or nozzle page and one short text job. Record whether each contains marks; one blank sheet alone does not identify the cause.";
+  return blankPageCheck(v);
  }else if(topic==="discovery"){
-  if(v.windows==="present")a="Windows shows this printer as Ready. Discovery is not the current failure; send one small test job and investigate the printing path instead.";
-  else if(v.windows==="offline")a="The printer already exists in Windows but is Offline. Use its current network report or USB state to check whether the installed destination is stale.";
-  else if(v.connection==="shared")a="This printer is shared from another computer or server. Confirm the share name, host availability, access permissions and organization policy before adding a local IP printer.";
-  else if(v.connection==="usb"&&v.evidence==="usb")a="A second authorized computer recognizes the USB connection. Check the affected PC's port/cable and Windows printer entry; do not change network security settings.";
-  else if(v.connection==="usb")a="Direct USB printer not discovered: confirm power and a known-good cable/port, then check Windows Settings → Bluetooth & devices → Printers & scanners → Add device.";
-  else if(v.connection==="wifi"&&v.evidence==="noip")a="A network printer without a usable IP address has not completed network setup. Check the printer's own SSID/authentication/DHCP report before manual Windows addition.";
-  else if(v.connection==="wifi"&&v.evidence==="ip")a="Printer has a network IP but Windows auto-discovery cannot see it. Confirm the intended local network and isolation settings; Windows offers Add device → Add a new device manually when discovery fails. Use the correct manufacturer driver and documented address.";
-  else a="First distinguish direct USB, local Wi-Fi and a shared printer. For Wi-Fi, record the printer's own IP status; discovery and actual connectivity are separate tests.";
+  if(v.windows==="present")a="Windows lists the printer as Ready. Select it and try one small document. If that fails, inspect its queue and the app’s selected printer.";
+  else if(v.windows==="offline")a="Windows already lists this printer as Offline. Open that entry and compare its queue and connection with the printer’s current status.";
+  else if(v.connection==="wifi" && v.evidence==="noip")a="Check the printer’s network report for the intended Wi-Fi name, authentication and DHCP address assignment. Once it has a usable address, check Windows Printers & scanners.";
+  else if(v.windows!=="missing"){
+   const check="Open Settings → Bluetooth & devices → Printers & scanners. Look for your printer. If it is absent, select Add device and let the search finish. Choose the observed Windows result above.";
+   a=v.connection==="usb" ? "For USB, power on the printer and connect its data cable to this PC. "+check : check;
+  }
+  else if(v.connection==="shared")a="Ask the owner or administrator for the approved printer share name and confirm the host is online. Use that shared queue to install the printer.";
+  else if(v.connection==="usb" && v.evidence==="usb")a="Another computer detects the USB connection. On this PC try a known-good USB port, check the exact printer entry and run Add device again.";
+  else if(v.connection==="usb")a="Check the printer’s power, reseat the USB data cable, try a known-good direct port and run Add device again.";
+  else if(v.connection==="wifi" && v.evidence==="ip")a="The Add device search finished without a match. Check the current address on the printer and whether the PC can use the same trusted network. If the model supports IP installation, choose Add a new device manually and use the verified address.";
+  else a="Identify how the printer connects. For a network printer, check its current network report. For direct USB, check the data cable and the PC port. For a shared queue, confirm the approved share name.";
  }else if(topic==="driverchoice"){
   if(v.download==="thirdparty")a="Stop before downloading. A third-party driver-downloader advertisement is not a reliable source. Use Windows Update or the exact model's manufacturer support page; never pay for an unverified driver.";
   else if(v.system==="arm"&&v.status!=="installed")a="Windows reports an ARM-based PC. Microsoft notes that some vendor printer installers fail on ARM. Try Windows 11 Settings → Bluetooth & devices → Printers & scanners → Add device, and follow any model-specific ARM instructions from the manufacturer.";
@@ -138,7 +158,10 @@ function advice(topic,values){
   else if(v.model==="l3250")a+=" L3250/L3251: Epson documents using the printer's network-status button to print its network connection report; do not apply ET-2800 on-screen menu steps.";
   else a+=" Exact Epson menus and available codes differ across models.";
  }
- return a;
+ return {text:a};
+}
+function advice(topic,values){
+ return recommendation(topic,values).text;
 }
 function mount(){
  document.querySelectorAll(".pr-diagnostic-workbook[data-diagnostic]").forEach(panel=>{
@@ -146,11 +169,20 @@ function mount(){
   const topic=panel.dataset.diagnostic,config=CONFIG[topic];if(!config)return;
   panel.dataset.mounted="true";
   const selects=[...panel.querySelectorAll("select[data-observation]")];
+  const target=panel.querySelector(".pr-diagnostic-advice");
+  const next=panel.querySelector("[data-next-check]");
   const update=()=>{
    const values={};
    for(const s of selects)values[s.dataset.observation]=s.value;
-   const target=panel.querySelector(".pr-diagnostic-advice");
-   if(target)target.textContent=advice(topic,values);
+   const result=recommendation(topic,values);
+   if(target)target.textContent=result.text;
+   if(next && result.target){
+    const heading=document.getElementById(result.target);
+    if(heading){
+     next.href="#"+heading.id;
+     next.textContent=heading.textContent;
+    }
+   }
   };
   selects.forEach(s=>s.addEventListener("change",update));
   const copy=panel.querySelector(".pr-diagnostic-copy");
