@@ -23,7 +23,6 @@ test("All educational articles include local-only note form and supporting scrip
 test("Core JavaScript is syntactically valid",()=>{for(const p of ["assets/experience.js","assets/guide-tools.js","assets/ai-automation-interactions.js","assets/razorpay-test-checkout.js"]){assert.doesNotThrow(()=>new vm.Script(read(p),{filename:p}))}for(const p of ["tools/page-fit.html","tools/connection-path.html"]){assert.doesNotThrow(()=>new vm.Script(inlineLast(read(p)),{filename:p}))}});
 test("Stylesheets have matched CSS blocks",()=>{for(const p of ["assets/experience.css","assets/ai-automation-premium.css","premium.css","trust.css"]){const s=read(p);assert.equal((s.match(/{/g)||[]).length,(s.match(/}/g)||[]).length,p)}});
 function fakeEl(value=""){return {value,hidden:false,dataset:{},textContent:"",attrs:{},addEventListener(event,fn){this["on"+event]=fn},setAttribute(k,v){this.attrs[k]=v},requestSubmit(){this.onsubmit?.({preventDefault(){}})}}}
-test("IPv4 calculator distinguishes same and different /24 networks",()=>{const ids=["lab-form","lab-result","lab-title","lab-message","lab-networks","computer-ip","printer-ip","prefix","same-sample","different-sample"];const m=Object.fromEntries(ids.map(id=>[id,fakeEl()]));m["computer-ip"].value="192.168.1.24";m["printer-ip"].value="192.168.1.88";m.prefix.value="24";const d={getElementById:id=>m[id]};vm.runInNewContext(inlineLast(read("tools/connection-path.html")),{document:d,Number,Math,parseInt});m["lab-form"].onsubmit({preventDefault(){}});assert.match(m["lab-title"].textContent,/Same calculated/);assert.match(m["lab-networks"].textContent,/192\.168\.1\.0\/24/);m["printer-ip"].value="192.168.2.88";m["lab-form"].onsubmit({preventDefault(){}});assert.match(m["lab-title"].textContent,/Different calculated/);});
 test("Page fit tool compares A4 and Letter dimensions",()=>{const ids=["fit-form","fit-result","fit-title","fit-summary","fit-detail","paper","content-width","content-height","margin-left","margin-top","paper-rect","safe-rect","content-rect","page-label"];const m=Object.fromEntries(ids.map(id=>[id,fakeEl()]));Object.assign(m.paper,{value:"a4"});m["content-width"].value="190";m["content-height"].value="270";m["margin-left"].value="10";m["margin-top"].value="10";vm.runInNewContext(inlineLast(read("tools/page-fit.html")),{document:{getElementById:id=>m[id]},Number,Math});assert.equal(m["fit-result"].dataset.outcome,"fits");m.paper.value="letter";m["fit-form"].onsubmit({preventDefault(){}});assert.equal(m["fit-result"].dataset.outcome,"does-not-fit");assert.match(m["fit-detail"].textContent,/reduce the content/i);});
 test("Website sitemap and crawl files are present",()=>{assert.ok(known.has("robots.txt"));assert.ok(known.has("ads.txt"));assert.match(read("robots.txt"),/sitemap/i);assert.match(read("ads.txt"),/pub-2393332073506347/);});
 
@@ -62,12 +61,16 @@ test("PrinterResolve has a consistent branded favicon on every page",()=>{
   }
 });
 
-test("Connection lab flags copied addresses, link-local and subnet boundaries", () => {
-  const ids = ["lab-form", "lab-result", "lab-title", "lab-message", "lab-networks",
-    "computer-ip", "printer-ip", "prefix", "same-sample", "different-sample"];
-  const fields = Object.fromEntries(ids.map(id => [id, fakeEl()]));
+function openConnectionLab() {
   const page = read("tools/connection-path.html");
+  const fields = Object.fromEntries([...page.matchAll(/\bid="([^"]+)"/g)].map(match => [match[1], fakeEl()]));
   vm.runInNewContext(inlineLast(page), {document: {getElementById: id => fields[id]}});
+  return fields;
+}
+
+test("Connection lab flags copied addresses, link-local and subnet boundaries", () => {
+  const fields = openConnectionLab();
+  const page = read("tools/connection-path.html");
   const cases = [
     ["192.168.1.126", "192.168.1.129", 24, "same", "192.168.1.0/24"],
     ["192.168.1.126", "192.168.1.129", 25, "different", "192.168.1.128/25"],
@@ -90,6 +93,49 @@ test("Connection lab flags copied addresses, link-local and subnet boundaries", 
   }
   for (let prefix = 1; prefix <= 32; prefix++) {
     assert.ok(page.includes('value="' + prefix + '"'), "Missing prefix /" + prefix);
+  }
+});
+
+test("Each device uses its own subnet mask and the printer mask is optional", () => {
+  const fields = openConnectionLab();
+  for (const [computer, printer, pcMask, printerMask, expected, detail] of [
+    ["192.168.1.126", "192.168.1.129", "24", "", "same", "printer’s own mask is unknown"],
+    ["192.168.1.126", "192.168.1.129", "24", "24", "same", "Printer subnet 192.168.1.0/24 — PC address is inside"],
+    ["192.168.1.126", "192.168.1.129", "24", "255.255.255.128", "mixed", "Printer subnet 192.168.1.128/25 — PC address is outside"],
+    ["192.168.1.126", "192.168.1.129", "25", "/24", "mixed", "PC subnet 192.168.1.0/25 — printer address is outside"],
+    ["192.168.1.126", "192.168.1.129", "25", "25", "different", "Printer subnet 192.168.1.128/25 — PC address is outside"],
+    ["192.168.1.121", "192.168.1.122", "24", "/25", "same", "Printer subnet 192.168.1.0/25 — PC address is inside"],
+    ["192.168.1.64", "192.168.1.10", "24", "26", "mixed", "Printer subnet 192.168.1.0/26 — PC address is outside"],
+    ["192.168.1.130", "192.168.1.128", "24", "/25", "check", "network or broadcast address under the printer mask"],
+    ["192.168.1.129", "192.168.1.128", "31", "/31", "same", "Printer subnet 192.168.1.128/31"],
+    ["192.168.1.126", "192.168.1.129", "32", "255.255.255.255", "different", "Printer subnet 192.168.1.129/32"],
+    ["192.168.1.126", "192.168.1.129", "24", "255.0.255.0", "error", "Check the printer’s subnet mask"],
+    ["192.168.1.126", "192.168.1.129", "24", "/33", "error", "Check the printer’s subnet mask"]
+  ]) {
+    fields["computer-ip"].value = computer;
+    fields["printer-ip"].value = printer;
+    fields.prefix.value = pcMask;
+    fields["printer-mask"].value = printerMask;
+    fields["lab-form"].requestSubmit();
+    assert.equal(fields["lab-result"].dataset.type, expected);
+    const output = ["lab-title", "lab-message", "lab-networks"].map(id => fields[id].textContent).join(" ");
+    assert.ok(output.includes(detail), output);
+  }
+  fields["mask-sample"].onclick();
+  assert.equal(fields["lab-result"].dataset.type, "mixed");
+  fields["lab-form"].oninput();
+  assert.equal(fields["lab-result"].hidden, true);
+  fields["same-sample"].onclick();
+  assert.equal(fields["printer-mask"].value, "");
+  assert.match(fields["lab-title"].textContent, /Same calculated/);
+  fields["different-sample"].onclick();
+  assert.match(fields["lab-title"].textContent, /Different calculated/);
+});
+
+test("Local diagnostic forms exclude answers from native form submissions", () => {
+  for (const [page, id] of [["index.html", "diagnose-form"], ["tools/page-fit.html", "fit-form"], ["tools/connection-path.html", "lab-form"]]) {
+    const form = read(page).split('<form id="' + id + '"')[1].split("</form>")[0];
+    assert.doesNotMatch(form, /<(?:input|select|textarea|button)\b[^>]*\sname\s*=/i, id);
   }
 });
 
