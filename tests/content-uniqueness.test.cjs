@@ -162,10 +162,11 @@ test("General Windows slowdown guide distinguishes actual printer bottlenecks",(
   '/printer-print-queue-stuck-windows-11','troubleshoot-printing-scenarios'])
   assert.ok(s.includes(text),"Missing printer-specific slow PC decision: "+text);
 });
-test("Substantive 7 November improvements have honest sitemap lastmod entries",()=>{
+test("Substantive editorial improvements have honest sitemap lastmod entries",()=>{
  const sm=read("sitemap.xml");
  for(const slug of ['device-setup-installation','brother-printer-offline-windows-11',
   'remote-assistance-safety','windows-pc-slow-errors']){
-  assert.ok(sm.includes('<loc>https://printerresolve.com/'+slug+'</loc><lastmod>2026-11-07</lastmod>'));
+  const expected=slug==='windows-pc-slow-errors'?'2026-11-10':'2026-11-07';
+  assert.ok(sm.includes('<loc>https://printerresolve.com/'+slug+'</loc><lastmod>'+expected+'</lastmod>'));
  }
 });
