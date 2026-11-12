@@ -84,7 +84,7 @@ test("PrinterResolve has a consistent branded favicon on every page",()=>{
   assert.equal(icon.readUInt8(6),32,"ICO width");
   assert.equal(icon.readUInt8(7),32,"ICO height");
   assert.equal(icon.readUInt32LE(14),icon.length-22,"ICO embedded image length");
-  assert.equal(pages.length,40,"Expected all 40 published HTML pages");
+  assert.equal(pages.length,39,"Expected all 39 published HTML pages after retiring the AI landing page");
   for(const p of pages){
     const html=read(p);
     assert.ok(html.includes('href="/favicon.ico?v=20261107-1"'),p+" missing fallback favicon");
