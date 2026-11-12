@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-10",
+  "generated": "2026-11-12",
   "note": "Only real canonical PrinterResolve routes; no invented printer model pages.",
   "entries": [
     {
@@ -274,13 +274,6 @@
       "description": "Choose a symptom and get matching first checks",
       "category": "tool",
       "keywords": " printer problem checker"
-    },
-    {
-      "path": "/ai-automation",
-      "title": "AI Automation & Customer Inquiry Workflows",
-      "description": "Explore website chatbots, multilingual inquiries and appointment-request workflows for businesses.",
-      "category": "business",
-      "keywords": "business ai automation chatbot appointment inquiry workflows"
     }
   ]
 }
