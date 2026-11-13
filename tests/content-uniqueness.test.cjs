@@ -166,11 +166,11 @@ test("General Windows slowdown guide distinguishes actual printer bottlenecks",(
 test("Substantive editorial improvements have honest sitemap lastmod entries",()=>{
  const sm=read("sitemap.xml");
  const dates={
-  "device-setup-installation":"2026-11-10",
-  "brother-printer-offline-windows-11":"2026-11-07",
+  "device-setup-installation":"2026-11-13",
+  "brother-printer-offline-windows-11":"2026-11-13",
   "remote-assistance-safety":"2026-11-07",
   "windows-pc-slow-errors":"2026-11-10",
-  "printer-printing-blank-pages":"2026-11-10",
+  "printer-printing-blank-pages":"2026-11-13",
   "printer-not-found-windows-11":"2026-11-10",
   "tools/print-path-lab":"2026-11-10"
  };

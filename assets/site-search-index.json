@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-12",
+  "generated": "2026-11-13",
   "note": "Only real canonical PrinterResolve routes; no invented printer model pages.",
   "entries": [
     {
@@ -131,9 +131,9 @@
     {
       "path": "/printer-printing-blank-pages",
       "title": "Printer Printing Blank Pages",
-      "description": "Diagnose blank sheets, consumables and print-quality issues",
+      "description": "Compare an internal test page with a document, or reproduce a PDF note that disappears in print.",
       "category": "printer",
-      "keywords": " printer printing blank pages"
+      "keywords": " printer printing blank pages annotation print flag PDF blank preview"
     },
     {
       "path": "/printer-printing-slowly-windows-11",
@@ -145,9 +145,9 @@
     {
       "path": "/printer-faded-streaked-pages",
       "title": "Printer Printing Faded or Streaked Pages",
-      "description": "Compare nozzles, alignment and print quality",
+      "description": "Use a printable comparison sheet to isolate a streak in a direct print, a flatbed copy or a feeder copy.",
       "category": "printer",
-      "keywords": " printer printing faded or streaked pages"
+      "keywords": " printer printing faded or streaked pages ADF feeder scanner glass test sheet PDF"
     },
     {
       "path": "/wifi-connected-no-internet-windows-11",

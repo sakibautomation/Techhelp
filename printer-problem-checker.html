@@ -21,12 +21,31 @@
 .safe{border-left:4px solid #c08420;background:#fff8e8;padding:15px 20px}
 @media print{header,footer,form,.no-print{display:none!important}body,main,#result{background:white!important;color:black!important;box-shadow:none!important;border:0!important}a{color:black}main{width:100%!important;margin:0!important;padding:0!important}}
 </style>
-<script defer src="/assets/guide-tools.js"></script><link rel="stylesheet" href="/assets/future-2.css?v=20261106-contrast-4"><script defer src="/assets/future-2.js"></script></head>
+<script defer src="/assets/guide-tools.js"></script><link rel="stylesheet" href="/assets/future-2.css?v=20261106-contrast-4"><script defer src="/assets/future-2.js"></script><style media="print">
+@page { margin: 16mm; }
+body:has(#result:not([hidden])) > :not(.nx-layout),
+body:has(#result:not([hidden])) .nx-layout > aside,
+body:has(#result:not([hidden])) main > :not(article),
+body:has(#result:not([hidden])) article > :not(#result),
+#result button { display: none !important; }
+body:has(#result:not([hidden])) .nx-layout,
+body:has(#result:not([hidden])) main,
+body:has(#result:not([hidden])) article,
+body:has(#result:not([hidden])) #result {
+  display: block !important; width: auto !important; max-width: none !important;
+  margin: 0 !important; padding: 0 !important; border: 0 !important;
+  background: white !important; box-shadow: none !important;
+}
+#result, #result * { color: black !important; background: transparent !important; }
+#result h2 { font-size: 20pt !important; }
+#result p, #result li, #result a { font-size: 11pt !important; line-height: 1.5 !important; }
+</style>
+</head>
 <body class="nx-document nx-printer"><a class="skip" href="#main">Skip to content</a><header class="nx-top"><div class="nx-container nx-top-inner"><a class="nx-wordmark" href="/"><span class="nx-logo">P/R</span><span>Printer<span>Resolve</span></span></a><nav class="nx-top-nav" aria-label="Site navigation"><a href="/guides">All guides</a><a href="/tools/connection-path">Connection lab</a><a href="/tools/page-fit">Paper fit</a><a class="nx-nav-cta" href="/printer-problem-checker">Problem checker ↗</a></nav></div></header><div class="nx-progress" aria-hidden="true"></div>
 <section class="nx-hero" data-scene="printer"><div class="nx-container nx-hero-inner"><div class="nx-hero-copy"><p class="nx-eyebrow"><i aria-hidden="true"></i>PRINTER PROBLEM CHECKER</p><p class="nx-display">Find the symptom.<em>Choose the next step.</em></p><p class="nx-hero-description">Select what you see and how your printer connects. Follow practical checks that do not require remote access.</p><div class="nx-hero-pills"><span>3D visual guide</span><span>Practical context</span><span>Safer decisions</span></div><div class="nx-hero-actions"><a class="nx-action" href="#main">Explore this page ↘</a><a class="nx-action nx-action-secondary" href="/guides">Browse all guides ↗</a></div></div><div class="nx-hero-art"><span class="nx-orbit" aria-hidden="true"></span><span class="nx-orbit" aria-hidden="true"></span><img class="nx-scene" src="/assets/scene-printer.svg" width="720" height="520" alt="Original 3D-style printer illustration" decoding="async"><span class="nx-scene-glint" aria-hidden="true"></span><span class="nx-float-tag nx-tag-a" aria-hidden="true">EXPLORE / 01</span><span class="nx-float-tag nx-tag-b" aria-hidden="true">UNDERSTAND / 02</span><span class="nx-visual-credit">Original illustrative artwork — not a device photograph</span></div></div></section><div class="nx-layout"><aside class="nx-aside" aria-label="Page navigation"><div class="nx-aside-card"><div class="nx-aside-label">On this page</div><nav class="nx-outline" aria-label="Jump to sections"><a href="#main">Introduction</a></nav><p class="nx-aside-note">Free independent education. Procedures and device behavior vary by model.</p><a class="nx-aside-bottom-link" href="/guides">All troubleshooting guides ↗</a></div></aside><main id="main"><article>
 <p><a href="/">Home</a> / Free self-service tool</p>
 <h1>Printer Problem Checker</h1>
-<p>Not sure which guide to read? Choose the problem you see and how your printer connects. This checker gives you a short sequence of safe tests and links to fuller instructions. It does not inspect your printer, run remote diagnostics or guarantee a repair.</p>
+<p>Not sure which guide to read? Choose the problem you see. For a connection or queue issue, also choose how the printer connects. This checker gives you a short sequence of safe tests and links to fuller instructions. It does not inspect your printer, run remote diagnostics or guarantee a repair.</p>
 <div class="safe"><strong>Before starting:</strong> Check the printer screen for a warning, note the exact model, and keep track of what you change. Stop if the device has a burning smell, damaged power cable or another electrical hazard. For shared or managed office printers, speak to your administrator before changing settings.</div>
 <form id="checker" class="checker">
 <label for="symptom">What is the main problem?</label>
@@ -41,15 +60,17 @@
 <option value="slow">Printing is unusually slow</option>
 <option value="jam">Printer reports a paper jam</option>
 </select>
+<div id="connection-question">
 <label for="connection">How does the printer connect?</label>
 <select id="connection" required>
 <option value="">Choose a connection</option>
 <option value="wifi">Wi-Fi</option><option value="usb">USB cable</option>
 <option value="wired">Ethernet / wired network</option><option value="unknown">I don't know</option>
 </select>
+</div>
 <button type="submit">Show my checklist</button>
 </form>
-<section id="result" aria-live="polite" aria-atomic="true" hidden>
+<section id="result" tabindex="-1" aria-live="polite" aria-atomic="true" hidden>
 <h2 id="result-title">Your troubleshooting checklist</h2>
 <p id="result-intro"></p>
 <ol id="result-steps"></ol>
@@ -84,30 +105,62 @@
 (function(){
 "use strict";
 var guides={
-offline:{title:"Printer offline",intro:"An offline label can mean a connection or queue-status problem, not necessarily a broken driver.",steps:["Confirm the printer is powered on, has no active error and is not sleeping through a warning.","Check that Windows lists the intended printer, not an old duplicate entry.","Review the connection-specific check below.","Open the Windows print queue and check for paused jobs or a stalled document.","Try one small test page; change only one thing at a time."],links:[["Full offline guide","printer-offline-windows-11"],["General printing guide","printer-not-printing"]]},
-missing:{title:"Printer not found",intro:"First separate a device discovery issue from a driver issue.",steps:["Confirm the printer is switched on and shows Ready or an equivalent state.","Review the connection-specific check below.","In Windows 11, open Settings → Bluetooth & devices → Printers & scanners → Add device.","If discovery still fails, consult the printer manual's connection setup procedure; avoid downloading random driver utilities.","Only after the device is visible, check whether Windows needs an official driver."],links:[["Printer not found guide","printer-not-found-windows-11"],["Safe driver installation","find-install-printer-driver"]]},
+offline:{title:"Printer offline",intro:"An offline label can mean a connection or queue-status problem, not necessarily a broken driver.",steps:["Confirm the printer is powered on, has no active error and is not sleeping through a warning.","Check that Windows lists the intended printer, not an old duplicate entry.","Open the Windows print queue and check for paused jobs or a stalled document.","Try one small test page; change only one thing at a time."],links:[["Full offline guide","printer-offline-windows-11"],["General printing guide","printer-not-printing"]]},
+missing:{title:"Printer not found",intro:"First separate a device discovery issue from a driver issue.",steps:["Confirm the printer is switched on and shows Ready or an equivalent state.","In Windows 11, open Settings → Bluetooth & devices → Printers & scanners → Add device.","If discovery still fails, consult the printer manual's connection setup procedure; avoid downloading random driver utilities.","Only after the device is visible, check whether Windows needs an official driver."],links:[["Printer not found guide","printer-not-found-windows-11"],["Safe driver installation","find-install-printer-driver"]]},
 queue:{title:"Print job stuck",intro:"Avoid deleting other people's jobs from a shared printer.",steps:["Confirm the printer has paper and is not reporting a hardware error.","Open Settings → Bluetooth & devices → Printers & scanners and select the correct print queue.","Check whether printing is paused or a single job shows an error.","If it is your own stalled document, cancel that job and retry a one-page test.","If the queue is shared or keeps failing, consult the detailed guide and your administrator before restarting services."],links:[["Stuck print queue guide","printer-print-queue-stuck-windows-11"],["Print spooler stops","print-spooler-keeps-stopping-windows-11"]]},
-driver:{title:"Driver unavailable",intro:"An unavailable driver message should be distinguished from a missing printer connection.",steps:["Write down the exact printer model and check your Windows version and system type.","Review the connection-specific check below.","Use Windows Update and Add device before downloading separate drivers.","If necessary, visit the manufacturer's official support site for your exact model and Windows version.","Print a Windows test page before considering any further changes."],links:[["Driver unavailable guide","printer-driver-unavailable-windows-11"],["Official driver source checklist","find-install-printer-driver"]]},
-blank:{title:"Blank pages",intro:"If the printer produces completely blank paper, check its built-in test or nozzle report first.",steps:["Verify that cartridges or toner are installed correctly and have not been left with protective tape.","Print the built-in quality or status report from the printer, if your model supports it.","If the built-in print is also blank, follow model-specific consumable and cleaning guidance; do not repeatedly run deep-clean cycles.","If built-in printing works, try a simple document from a different Windows app.","Compare the result before changing drivers or replacing supplies."],links:[["Blank pages guide","printer-printing-blank-pages"],["Faded and streaked pages","printer-faded-streaked-pages"]]},
-faded:{title:"Faded or streaked pages",intro:"Print quality problems are often best diagnosed on the printer itself.",steps:["Check ink/toner levels and any consumable warnings.","Use the printer's built-in quality diagnostic or nozzle check if your model supports one.","Compare whether marks repeat at similar positions or only occur with a particular paper type.","Follow the manufacturer's maintenance sequence and avoid repeated cleaning without guidance.","If the printer's own report is clean, compare a different document and Windows print quality setting."],links:[["Faded and streaked guide","printer-faded-streaked-pages"],["Blank pages guide","printer-printing-blank-pages"]]},
-slow:{title:"Slow printing",intro:"Find out whether Windows, the connection or the printer itself is taking extra time.",steps:["Print a one-page plain-text document and compare it with a large PDF or photo.","Note if the delay occurs before the first page or during printing.","Review the connection-specific check below.","For everyday text, compare the standard-quality mode with higher-quality or quiet settings, where offered.","Check the queue only if jobs wait without starting."],links:[["Slow printing checklist","printer-printing-slowly-windows-11"],["Stuck print queue","printer-print-queue-stuck-windows-11"]]},
-jam:{title:"Paper-jam warning",intro:"Treat a jam warning as a physical printer condition until proven otherwise.",steps:["Stop printing and follow the safety and paper-removal instructions for your exact printer model.","Turn the printer off if the manufacturer's procedure says to do so; let hot components cool.","Inspect only accessible paper paths and rollers as instructed by the manufacturer; do not force covers or tools inside.","Check that the paper type, stack and guides match the printer's requirements.","If the warning remains with no visible paper, use official service guidance rather than repeatedly forcing the mechanism."],links:[["Paper-jam warning guide","printer-paper-jam-no-paper-stuck"],["Printer not printing","printer-not-printing"]]}
+driver:{title:"Driver unavailable",intro:"An unavailable driver message should be distinguished from a missing printer connection.",steps:["Write down the exact printer model and check your Windows version and system type.","Use Windows Update and Add device before downloading separate drivers.","If necessary, visit the manufacturer's official support site for your exact model and Windows version.","Print a Windows test page before considering any further changes."],links:[["Driver unavailable guide","printer-driver-unavailable-windows-11"],["Official driver source checklist","find-install-printer-driver"]]},
+blank:{physical:true,title:"Blank pages",intro:"If the printer produces completely blank paper, check its built-in test or nozzle report first.",steps:["Print one built-in quality or status page from the printer’s controls, if the model supports it.","Read the display for warnings. On a new supply, check the installation instructions for protective tape.","If the built-in print is also blank, follow model-specific consumable and cleaning guidance; do not repeatedly run deep-clean cycles.","If built-in printing works, try a simple document from a different Windows app.","Compare the result before changing drivers or replacing supplies."],links:[["Blank pages guide","printer-printing-blank-pages"],["Faded and streaked pages","printer-faded-streaked-pages"]]},
+faded:{physical:true,title:"Faded or streaked pages",intro:"Print quality problems are often best diagnosed on the printer itself.",steps:["Compare a direct print with the printer’s internal quality report. If the direct print is clean and the mark appeared while copying, try the same clean original on the flatbed and through the feeder.","Note which output first shows the defect. A line confined to feeder copies suggests checking the feeder scan path.","Follow the manufacturer's maintenance sequence and avoid repeated cleaning without guidance.","If the printer's own report is clean, compare a different document and Windows print quality setting."],links:[["Print and copy comparison sheet and instructions","/printer-faded-streaked-pages#print-copy-comparison"],["Blank pages guide","printer-printing-blank-pages"]]},
+slow:{title:"Slow printing",intro:"Find out whether Windows, the connection or the printer itself is taking extra time.",steps:["Print a one-page plain-text document and compare it with a large PDF or photo.","Note if the delay occurs before the first page or during printing.","For everyday text, compare the standard-quality mode with higher-quality or quiet settings, where offered.","Check the queue only if jobs wait without starting."],links:[["Slow printing checklist","printer-printing-slowly-windows-11"],["Stuck print queue","printer-print-queue-stuck-windows-11"]]},
+jam:{physical:true,title:"Paper-jam warning",intro:"Treat a jam warning as a physical printer condition until proven otherwise.",steps:["Stop printing and follow the safety and paper-removal instructions for your exact printer model.","Turn the printer off if the manufacturer's procedure says to do so; let hot components cool.","Inspect only accessible paper paths and rollers as instructed by the manufacturer; do not force covers or tools inside.","Check that the paper type, stack and guides match the printer's requirements.","If the warning remains with no visible paper, use official service guidance rather than repeatedly forcing the mechanism."],links:[["Paper-jam warning guide","printer-paper-jam-no-paper-stuck"],["Printer not printing","printer-not-printing"]]}
 };
 var connections={wifi:"For Wi-Fi: confirm the printer is connected to the intended network. Guest networks and client isolation may prevent computers from finding printers. Use the model's network status page if available.",usb:"For USB: check the cable is seated at both ends; try a direct computer port rather than an unpowered hub. Do not unplug a device during a firmware update.",wired:"For Ethernet: verify the cable and network port are connected and that the printer shows a valid network address. Managed networks may restrict discovery.",unknown:"For an unknown connection: inspect whether a USB/Ethernet cable is plugged in. Otherwise check the printer screen or model manual for wireless setup status."};
-var form=document.getElementById("checker");
-form.addEventListener("submit",function(event){
-event.preventDefault();
-var symptom=document.getElementById("symptom").value,connection=document.getElementById("connection").value;
-if(!guides[symptom]||!connections[connection])return;
-var data=guides[symptom],box=document.getElementById("result"),steps=document.getElementById("result-steps"),links=document.getElementById("result-links");
-document.getElementById("result-title").textContent=data.title+": your next checks";
-document.getElementById("result-intro").textContent=data.intro;
-steps.replaceChildren();
-data.steps.forEach(function(s){var li=document.createElement("li");li.textContent=s;steps.appendChild(li)});
-if(symptom!=="jam"&&symptom!=="blank"&&symptom!=="faded"){var li=document.createElement("li");li.textContent=connections[connection];steps.appendChild(li)}
-links.replaceChildren();links.appendChild(document.createTextNode("Detailed guides: "));
-data.links.forEach(function(item,i){if(i)links.appendChild(document.createTextNode(" · "));var a=document.createElement("a");a.href=item[1];a.textContent=item[0];links.appendChild(a)});
-box.hidden=false;box.scrollIntoView({behavior:"smooth",block:"start"});
+const form = document.getElementById("checker");
+const symptom = document.getElementById("symptom");
+const connection = document.getElementById("connection");
+const question = document.getElementById("connection-question");
+const result = document.getElementById("result");
+
+function updateQuestions() {
+  const needsConnection = !guides[symptom.value]?.physical;
+  question.hidden = !needsConnection;
+  connection.disabled = !needsConnection;
+  connection.required = needsConnection;
+  result.hidden = true;
+}
+form.addEventListener("change", updateQuestions);
+window.addEventListener("pageshow", updateQuestions);
+updateQuestions();
+
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+  const guide = guides[symptom.value];
+  if (!guide || (!guide.physical && !connections[connection.value])) return;
+
+  const checklist = [...guide.steps];
+  if (!guide.physical) checklist.splice(1, 0, connections[connection.value]);
+  const steps = document.getElementById("result-steps");
+  steps.replaceChildren();
+  for (const step of checklist) {
+    const item = document.createElement("li");
+    item.textContent = step;
+    steps.appendChild(item);
+  }
+
+  document.getElementById("result-title").textContent = guide.title + ": your next checks";
+  document.getElementById("result-intro").textContent = guide.intro;
+  const links = document.getElementById("result-links");
+  links.replaceChildren(document.createTextNode("Detailed guides: "));
+  guide.links.forEach(([title, href], index) => {
+    if (index) links.appendChild(document.createTextNode(" · "));
+    const link = document.createElement("a");
+    link.href = href;
+    link.textContent = title;
+    links.appendChild(link);
+  });
+  result.hidden = false;
+  result.focus({preventScroll: true});
+  result.scrollIntoView({behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
 });
 document.getElementById("print-checklist").addEventListener("click",function(){window.print()});
 })();

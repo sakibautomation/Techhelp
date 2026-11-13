@@ -104,6 +104,23 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
       await desktop.screenshot({path:path.join(art,"windows-card-contrast-desktop.png"),fullPage:true,animations:"disabled"});
     }
   }
+  // A physical symptom can be checked without asking for a connection.
+  await desktop.goto(base+"/printer-problem-checker", {waitUntil:"domcontentloaded"});
+  await desktop.selectOption("#symptom", "faded");
+  assert.ok(await desktop.locator("#connection").isDisabled());
+  await desktop.locator("#checker button").click();
+  assert.ok(await desktop.locator("#result a[href$='#print-copy-comparison']").isVisible());
+  await desktop.emulateMedia({media:"print"});
+  assert.ok(await desktop.locator("#result-steps").isVisible());
+  assert.ok(await desktop.locator(".nx-hero").isHidden());
+  assert.ok(await desktop.locator("#print-checklist").isHidden());
+  await desktop.emulateMedia({media:"screen"});
+  await desktop.selectOption("#symptom", "missing");
+  assert.ok(await desktop.locator("#result").isHidden());
+  assert.ok(await desktop.locator("#connection").isEnabled());
+  await desktop.selectOption("#connection", "usb");
+  await desktop.locator("#checker button").click();
+  assert.match(await desktop.locator("#result-steps li").nth(1).innerText(), /For USB/);
   // Editorial copy and sample ink diagrams must remain visible on the dark theme.
   for(const [slug,selector] of [
     ["windows-pc-slow-errors",".pr-field-intro"],
@@ -163,7 +180,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     assert.ok(data.h1&&data.h1.length>5,"readable H1 for "+route);
   }
   // Every redesigned guide must show its visual header on mobile.
-  for(const pageFile of allPageFiles.filter(p=>!["index.html","guides.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"].includes(p))){
+  for(const pageFile of allPageFiles.filter(p=>!["404.html","index.html","guides.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"].includes(p))){
     await mobile.goto(base+"/"+pageFile.replace(/\.html$/,""),{waitUntil:"domcontentloaded"});
     assert.ok(await mobile.locator(".nx-hero .nx-scene").isVisible(),pageFile+" mobile 3D hero");
   }

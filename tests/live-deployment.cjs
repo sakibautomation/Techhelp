@@ -46,6 +46,8 @@ const expected=[
  ["/assets/printer-360.mjs","WebGLRenderer"],
  ["/privacy","Google Ads Settings"],
  ["/device-setup-installation","id=\"first-print-path-specific\""],
+ ["/printer-faded-streaked-pages",'id="print-copy-comparison"'],
+ ["/printer-printing-blank-pages",'id="annotation-print-test"'],
  ["/brother-printer-offline-windows-11","id=\"brother-report-interpretation\""],
  ["/remote-assistance-safety","id=\"remote-support-red-flags-decision\""],
  ["/windows-pc-slow-errors","id=\"printing-slow-windows-vs-printer\""],
@@ -75,6 +77,7 @@ const path=require("node:path");
 const {createHash}=require("node:crypto");
 const digest=buffer=>createHash("sha256").update(buffer).digest("hex");
 const referenceAssets=new Set([
+ "/assets/print-quality-reference.pdf", "/assets/pdf-annotation-print-check.pdf",
  "/assets/print-scale-a4.pdf", "/assets/print-scale-letter.pdf",
  "/assets/print-scale-letter-unscaled.png", "/assets/print-scale-letter-fitted.png"
 ]);
@@ -101,6 +104,12 @@ async function get(path){const url=base+path+"?qa="+Date.now();const response=aw
    try{const x=await get(path);if(x.status!==200||!x.body.includes(marker))failures.push(path+" returned "+x.status+", marker="+x.body.includes(marker)+", body length="+x.body.length)}
    catch(err){failures.push(path+": "+err.message)}
   }
+  try {
+   const missing = await get("/missing-printerresolve-guide-probe");
+   if (missing.status !== 404 || !missing.body.includes("<h1>Page not found</h1>")) {
+    failures.push("Missing guide did not return the dedicated HTTP 404 page");
+   }
+  } catch (err) { failures.push("Missing-page check: "+err.message); }
   if(failures.length===0){success=true;break}
   process.stdout.write("Attempt "+attempt+" not fully deployed: "+failures.join("; ")+"\n");
   if(attempt<8)await delay(10000)
