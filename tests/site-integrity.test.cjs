@@ -18,8 +18,8 @@ function localTarget(url,source){if(/^(mailto:|tel:|data:|javascript:|#)/i.test(
 function inlineLast(html){const tags=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];return tags.filter(x=>!x[0].includes("application/ld+json")).at(-1)?.[1]||""}
 test("Site pages include titles, main content and viewport",()=>{for(const p of pages){const h=read(p);assert.match(h,/<!doctype html>/i,p+" doctype");assert.match(h,/<html\b[^>]*\blang=/i,p+" language");assert.match(h,/<title\b[^>]*>[\s\S]*?<\/title>/i,p+" title");assert.match(h,/<meta\b[^>]*name=["']viewport["']/i,p+" viewport");assert.match(h,/<main\b/i,p+" main");assert.match(h,/<\/main>/i,p+" closing main");assert.match(h,/<h1\b/i,p+" h1");}});
 test("All internal navigation and asset references resolve",()=>{const errors=[];for(const p of pages){const h=read(p),tags=[...h.matchAll(/<(?:a|link|script|img|source)\b[^>]*>/gi)];for(const tag of tags){const attrs=[...tag[0].matchAll(/\b(?:href|src)=["']([^"']+)["']/gi)];for(const match of attrs){const u=match[1],target=localTarget(u,p);if(target&&!known.has(target)){if(target==="refunds.html"&&known.has("_redirects"))continue;errors.push(p+" → "+u+" (expected "+target+")")}}}}assert.deepEqual(errors,[]);});
-test("Canonical urls and sitemap entries point to existing files",()=>{const sitemap=read("sitemap.xml");const errors=[];for(const m of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)){const target=localTarget(m[1],"sitemap.xml");if(!target||!known.has(target))errors.push(m[1]+" => "+target);}assert.deepEqual(errors,[]);for(const p of pages.filter(x=>!x.startsWith("tools/"))){if(p==="index.html"||p==="guides.html")continue;assert.match(read(p),/rel=["']canonical["']/i,p+" canonical")};});
-test("All educational articles include local-only note form and supporting script",()=>{const skip=new Set(["index.html","guides.html","about.html","editorial-policy.html","contact.html","privacy.html","terms.html","disclaimer.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"]);for(const p of pages){if(skip.has(p))continue;const h=read(p);assert.ok(h.includes('class="pr-notes"'),p+" note form");assert.ok(h.includes('/assets/guide-tools.js'),p+" script");}});
+test("Canonical urls and sitemap entries point to existing files",()=>{const sitemap=read("sitemap.xml");const errors=[];for(const m of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)){const target=localTarget(m[1],"sitemap.xml");if(!target||!known.has(target))errors.push(m[1]+" => "+target);}assert.deepEqual(errors,[]);for(const p of pages.filter(x=>!x.startsWith("tools/"))){if(p==="index.html"||p==="guides.html"||p==="404.html")continue;assert.match(read(p),/rel=["']canonical["']/i,p+" canonical")};});
+test("All educational articles include local-only note form and supporting script",()=>{const skip=new Set(["404.html","index.html","guides.html","about.html","editorial-policy.html","contact.html","privacy.html","terms.html","disclaimer.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"]);for(const p of pages){if(skip.has(p))continue;const h=read(p);assert.ok(h.includes('class="pr-notes"'),p+" note form");assert.ok(h.includes('/assets/guide-tools.js'),p+" script");}});
 test("Core JavaScript is syntactically valid",()=>{for(const p of ["assets/experience.js","assets/guide-tools.js"]){assert.doesNotThrow(()=>new vm.Script(read(p),{filename:p}))}for(const p of ["tools/page-fit.html","tools/connection-path.html"]){assert.doesNotThrow(()=>new vm.Script(inlineLast(read(p)),{filename:p}))}});
 test("Stylesheets have matched CSS blocks",()=>{for(const p of ["assets/experience.css","premium.css","trust.css"]){const s=read(p);assert.equal((s.match(/{/g)||[]).length,(s.match(/}/g)||[]).length,p)}});
 function fakeEl(value=""){return {value,hidden:false,dataset:{},textContent:"",attrs:{},addEventListener(event,fn){this["on"+event]=fn},setAttribute(k,v){this.attrs[k]=v},requestSubmit(){this.onsubmit?.({preventDefault(){}})}}}
@@ -84,7 +84,7 @@ test("PrinterResolve has a consistent branded favicon on every page",()=>{
   assert.equal(icon.readUInt8(6),32,"ICO width");
   assert.equal(icon.readUInt8(7),32,"ICO height");
   assert.equal(icon.readUInt32LE(14),icon.length-22,"ICO embedded image length");
-  assert.equal(pages.length,39,"Expected all 39 published HTML pages after retiring the AI landing page");
+  assert.equal(pages.filter(p=>p!=="404.html").length,39,"Expected all 39 content and navigation pages");
   for(const p of pages){
     const html=read(p);
     assert.ok(html.includes('href="/favicon.ico?v=20261107-1"'),p+" missing fallback favicon");
@@ -147,4 +147,13 @@ test("Retired business automation page is absent from public navigation", () => 
   assert.ok(!known.has("ai-automation.html"));
   for(const p of ["index.html", "about.html", "contact.html", "privacy.html", "terms.html", "sitemap.xml", "assets/site-search-index.json"])
     assert.doesNotMatch(read(p), /\/ai-automation|Business AI automation/i, p);
+});
+
+
+test("Missing pages use a dedicated ad-free error document outside the sitemap", () => {
+  const errorPage = read("404.html");
+  assert.match(errorPage, /name="robots" content="noindex,follow"/);
+  assert.match(errorPage, /href="\/guides"/);
+  assert.doesNotMatch(errorPage, /adsbygoogle|googlesyndication/i);
+  assert.doesNotMatch(read("sitemap.xml"), /\/404(?:\.html)?</);
 });

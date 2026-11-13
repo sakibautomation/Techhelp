@@ -5,7 +5,7 @@ const path=require("node:path");
 const http=require("node:http");
 const {chromium,devices}=require("playwright");
 const root=path.resolve(__dirname,".."),art=path.join(root,"test-artifacts");fs.mkdirSync(art,{recursive:true});
-const mime={".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",".svg":"image/svg+xml",".xml":"application/xml",".txt":"text/plain"};
+const mime={".mjs":"text/javascript",".pdf":"application/pdf",".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"text/javascript; charset=utf-8",".svg":"image/svg+xml",".xml":"application/xml",".txt":"text/plain"};
 function server(){return http.createServer((req,res)=>{let url;try{url=decodeURIComponent(new URL(req.url,"http://localhost").pathname)}catch{res.writeHead(400).end();return}let requested=url==="/"?"/index.html":url;if(requested.endsWith("/"))requested+="index.html";if(!path.extname(requested))requested+=".html";const file=path.resolve(root,"."+requested);if(file!==root&&!file.startsWith(root+path.sep)){res.writeHead(403).end();return}fs.readFile(file,(e,data)=>{if(e){res.writeHead(404).end("Not found: "+requested);return}res.writeHead(200,{"content-type":mime[path.extname(file)]||"application/octet-stream"});res.end(data)})})}
 (async()=>{
  const app=server();await new Promise(ok=>app.listen(0,"127.0.0.1",ok));
@@ -15,7 +15,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   const desktop=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
   await desktop.goto(base+"/",{waitUntil:"domcontentloaded"});
   assert.ok(await desktop.locator("#hero-title").isVisible(),"desktop heading");
-  assert.ok(await desktop.locator("#printer-model").isVisible(),"3D printer illustration");
+  assert.ok(await desktop.locator('.hero-art [data-printer="home"] .pr360-frame').isVisible(),"3D printer illustration");
   await desktop.screenshot({path:path.join(art,"home-desktop.png"),fullPage:true,animations:"disabled"});
   await desktop.locator("#symptom").selectOption("offline");
   await desktop.locator("#connection").selectOption("wifi");
@@ -58,7 +58,7 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     assert.ok(await desktop.locator(".nx-inline-visual img").count()>0,slug+" has another in-article picture");
     assert.ok(await desktop.locator(".nx-visual-bottom img").count()>0,slug+" has a closing 3D illustration");
     assert.ok(await desktop.locator(".nx-outline a").count()>2,slug+" navigable table of contents");
-    const image=await desktop.locator(".nx-hero .nx-scene").evaluate(el=>({loaded:el.complete&&el.naturalWidth>0,src:el.getAttribute("src")}));
+    const image=await desktop.locator(".nx-hero .nx-scene").evaluate(async el=>{await el.decode();return {loaded:el.naturalWidth>0,src:el.getAttribute("src")};});
     assert.ok(image.loaded,slug+" illustration actually loads: "+image.src);
     if(slug==="printer-offline-windows-11"||slug==="printer-driver-unavailable-windows-11"||slug==="printer-printing-blank-pages"){
       await desktop.screenshot({path:path.join(art,slug+"-desktop.png"),fullPage:true,animations:"disabled"});
@@ -104,9 +104,26 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
       await desktop.screenshot({path:path.join(art,"windows-card-contrast-desktop.png"),fullPage:true,animations:"disabled"});
     }
   }
+  // A physical symptom can be checked without asking for a connection.
+  await desktop.goto(base+"/printer-problem-checker", {waitUntil:"domcontentloaded"});
+  await desktop.selectOption("#symptom", "faded");
+  assert.ok(await desktop.locator("#connection").isDisabled());
+  await desktop.locator("#checker button").click();
+  assert.ok(await desktop.locator("#result a[href$='#print-copy-comparison']").isVisible());
+  await desktop.emulateMedia({media:"print"});
+  assert.ok(await desktop.locator("#result-steps").isVisible());
+  assert.ok(await desktop.locator(".nx-hero").isHidden());
+  assert.ok(await desktop.locator("#print-checklist").isHidden());
+  await desktop.emulateMedia({media:"screen"});
+  await desktop.selectOption("#symptom", "missing");
+  assert.ok(await desktop.locator("#result").isHidden());
+  assert.ok(await desktop.locator("#connection").isEnabled());
+  await desktop.selectOption("#connection", "usb");
+  await desktop.locator("#checker button").click();
+  assert.match(await desktop.locator("#result-steps li").nth(1).innerText(), /For USB/);
   // Editorial copy and sample ink diagrams must remain visible on the dark theme.
   for(const [slug,selector] of [
-    ["windows-pc-slow-errors",".pr-field-intro"],
+    ["windows-pc-slow-errors",".flow-help"],
     ["epson-not-printing-black-ink",".nozzle-pattern"],
     ["printer-faded-streaked-pages",".print-sample.bands"]
   ]){
@@ -143,8 +160,8 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
   assert.ok(await mobile.locator('#nav-links a[href="/guides"]').isVisible(),"mobile navigation");
   await mobile.screenshot({path:path.join(art,"home-mobile.png"),fullPage:true,animations:"disabled"});
   await mobile.emulateMedia({reducedMotion:"reduce"});
-  const animation=await mobile.locator("#printer-model").evaluate(el=>getComputedStyle(el).animationName);
-  assert.equal(animation,"none","reduced-motion option should disable model animation");
+  const scrollBehavior = await mobile.locator("html").evaluate(el=>getComputedStyle(el).scrollBehavior);
+  assert.equal(scrollBehavior,"auto","reduced-motion preference disables smooth scrolling");
   await mobile.goto(base+"/tools/page-fit",{waitUntil:"domcontentloaded"});
   assert.ok(await mobile.locator("#paper-svg").isVisible(),"mobile preview");
   const toolsDims=await mobile.evaluate(()=>({viewport:document.documentElement.clientWidth,content:document.documentElement.scrollWidth}));
@@ -163,9 +180,10 @@ function server(){return http.createServer((req,res)=>{let url;try{url=decodeURI
     assert.ok(data.h1&&data.h1.length>5,"readable H1 for "+route);
   }
   // Every redesigned guide must show its visual header on mobile.
-  for(const pageFile of allPageFiles.filter(p=>!["index.html","guides.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"].includes(p))){
+  for(const pageFile of allPageFiles.filter(p=>!["404.html","index.html","guides.html","tools/connection-path.html","tools/page-fit.html","tools/print-path-lab.html"].includes(p))){
     await mobile.goto(base+"/"+pageFile.replace(/\.html$/,""),{waitUntil:"domcontentloaded"});
-    assert.ok(await mobile.locator(".nx-hero .nx-scene").isVisible(),pageFile+" mobile 3D hero");
+    const art = mobile.locator(".nx-hero .nx-scene, .nx-hero .pr360-frame");
+    assert.ok(await art.first().isVisible(),pageFile+" mobile hero illustration or printer viewer");
   }
   await mobile.goto(base+"/printer-offline-windows-11",{waitUntil:"domcontentloaded"});
   const articleMotion=await mobile.locator(".nx-hero .nx-scene").evaluate(el=>getComputedStyle(el).animationName);
